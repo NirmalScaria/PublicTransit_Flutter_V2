@@ -16,13 +16,21 @@ class _myFromBoxState extends State<myFromBox> {
   var location = new Location();
   var url = Uri.parse("http://65.1.230.169/api/findclosest.php");
   var resptext = "0";
+  
   @override
+
   //Init state of the form boxes execute a get location command.
   //When location is got, then occurs the get response command towards server.
   //When response is got, he location value is updated.
   void initState() {
     super.initState();
+    setState(() {
+          fromloc = " WHERE?";
+        });
     location.getLocation().then((LocationData locationData) {
+      setState(() {
+          fromloc = "got location"+locationData.longitude.toString();
+        });
       _getResponse(locationData.latitude, locationData.longitude).then((value) {
         setState(() {
           resptext = value;
@@ -35,11 +43,14 @@ class _myFromBoxState extends State<myFromBox> {
   }
 
   Future<String> _getResponse(double lat, double lng) async {
+    fromloc="GETTING SERVER";
     var url = Uri.parse("http://65.1.230.169/api/findclosest.php");
     var response = await http
         .post(url, body: {"gx": lat.toString(), "gy": lng.toString()});
     resptext = response.body;
+    fromloc="YOO";
     return (resptext);
+
     //HERE IS THE REMAINING
     // Make this resptext variable a list. Get all the suggestions. Use it where it is needed.
     //Change the server side code to give list instead of one value.

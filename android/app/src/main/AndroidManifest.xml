@@ -1,8 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.busmap2">
+
+
    <application
         android:label="busmap2"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:usesCleartextTraffic="true"
+        >
 
         <meta-data android:name="com.google.android.geo.API_KEY"
                android:value="AIzaSyBhtyzHMMICP1n4YnTPHG_W-09hua7nzXw"/>
