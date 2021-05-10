@@ -15,7 +15,7 @@ class myFromBox extends StatefulWidget {
 class _myFromBoxState extends State<myFromBox> {
   var location = new Location();
   var url = Uri.parse("http://65.1.230.169/api/findclosest.php");
-  var resptext = "";
+  var resptext = "0";
   @override
   //Init state of the form boxes execute a get location command.
   //When location is got, then occurs the get response command towards server.
