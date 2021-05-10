@@ -4,8 +4,9 @@ import 'package:location/location.dart';
 import 'package:decorated_icon/decorated_icon.dart';
 import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-String fromloc = " WHERE ?";
+var closests = [" WHERE ?"];
 
 class myFromBox extends StatefulWidget {
   @override
@@ -14,9 +15,8 @@ class myFromBox extends StatefulWidget {
 
 class _myFromBoxState extends State<myFromBox> {
   var location = new Location();
-  var url = Uri.parse("http://65.1.230.169/api/findclosest.php");
   var resptext = "0";
-  
+  var jsonClosests = [];
   @override
 
   //Init state of the form boxes execute a get location command.
@@ -24,32 +24,34 @@ class _myFromBoxState extends State<myFromBox> {
   //When response is got, he location value is updated.
   void initState() {
     super.initState();
+    developer.log("getting");
     setState(() {
-          fromloc = " WHERE?";
-        });
+      closests[0] = " WHERE?";
+    });
     location.getLocation().then((LocationData locationData) {
+      developer.log("got location");
       setState(() {
-          fromloc = "got location"+locationData.longitude.toString();
-        });
+        closests[0] = "got location" + locationData.longitude.toString();
+      });
       _getResponse(locationData.latitude, locationData.longitude).then((value) {
         setState(() {
           resptext = value;
-        });
-        setState(() {
-          fromloc = ": "+resptext;
         });
       });
     });
   }
 
   Future<String> _getResponse(double lat, double lng) async {
-    fromloc="GETTING SERVER";
-    var url = Uri.parse("http://65.1.230.169/api/findclosest.php");
+    closests[0] = " (LOADING)";
+    var url = Uri.parse("http://65.1.230.169/api/findclosestjson.php");
     var response = await http
         .post(url, body: {"gx": lat.toString(), "gy": lng.toString()});
-    resptext = response.body;
-    fromloc="YOO";
-    return (resptext);
+    jsonClosests = jsonDecode(response.body);
+    //fromloc="YOO";
+    setState(() {
+      closests[0] = ": " + jsonClosests[0]["stopname"];
+    });
+    return ("done");
 
     //HERE IS THE REMAINING
     // Make this resptext variable a list. Get all the suggestions. Use it where it is needed.
@@ -80,7 +82,7 @@ class _myFromBoxState extends State<myFromBox> {
                   fillColor: Colors.white,
                   filled: true,
                   border: InputBorder.none,
-                  hintText: 'FROM$fromloc'),
+                  hintText: 'FROM${closests[0]}'),
             ),
           ),
           DecoratedIcon(
