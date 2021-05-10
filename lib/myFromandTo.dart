@@ -5,7 +5,7 @@ import 'package:decorated_icon/decorated_icon.dart';
 import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
 
-String fromloc = "WHERE ?";
+String fromloc = " WHERE ?";
 
 class myFromBox extends StatefulWidget {
   @override
@@ -15,7 +15,7 @@ class myFromBox extends StatefulWidget {
 class _myFromBoxState extends State<myFromBox> {
   var location = new Location();
   var url = Uri.parse("http://65.1.230.169/api/findclosest.php");
-  var resptext = "nothing yet";
+  var resptext = "";
   @override
   //Init state of the form boxes execute a get location command.
   //When location is got, then occurs the get response command towards server.
@@ -28,7 +28,7 @@ class _myFromBoxState extends State<myFromBox> {
           resptext = value;
         });
         setState(() {
-          fromloc = resptext;
+          fromloc = ": "+resptext;
         });
       });
     });
@@ -69,7 +69,7 @@ class _myFromBoxState extends State<myFromBox> {
                   fillColor: Colors.white,
                   filled: true,
                   border: InputBorder.none,
-                  hintText: 'FROM $fromloc'),
+                  hintText: 'FROM$fromloc'),
             ),
           ),
           DecoratedIcon(
