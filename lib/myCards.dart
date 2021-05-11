@@ -7,6 +7,8 @@ import 'myGlobals.dart';
 import 'dart:developer' as developer;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class myCard extends StatefulWidget {
   @override
@@ -15,7 +17,89 @@ class myCard extends StatefulWidget {
 
 class _myCardState extends State<myCard> {
   int _index = 0;
-   var abc=["KSRTC","ST. JOSEPH", "CMS","KSRTC","ST. JOSEPH", "CMS","KSRTC","ST. JOSEPH", "CMS""KSRTC","ST. JOSEPH", "CMS"];
+  var jsonresp = [];
+  var location = new Location();
+  var jsonstart = [
+    {
+      'origin': "Loading", 
+      'dest': 'Loading', 
+      'depart': '--:--',
+      'reach': '--:--',
+      'busname': 'Loading...'
+      },
+{
+      'origin': "--------", 
+      'dest': '--------', 
+      'depart': '--:--',
+      'reach': '--:--',
+      'busname': 'Loading...'
+      },
+      {
+      'origin': "--------", 
+      'dest': '--------', 
+      'depart': '--:--',
+      'reach': '--:--',
+      'busname': 'Loading...'
+      },
+      {
+      'origin': "--------", 
+      'dest': '--------', 
+      'depart': '--:--',
+      'reach': '--:--',
+      'busname': 'Loading...'
+      },
+      {
+      'origin': "--------", 
+      'dest': '--------', 
+      'depart': '--:--',
+      'reach': '--:--',
+      'busname': 'Loading...'
+      },
+      {
+      'origin': "--------", 
+      'dest': '--------', 
+      'depart': '--:--',
+      'reach': '--:--',
+      'busname': 'Loading...'
+      },
+  ];
+  @override
+  void initState() {
+    super.initState();
+    developer.log("getting");
+    setState(() {});
+    location.getLocation().then((LocationData locationData) {
+      developer.log("nothing yet");
+      developer.log("got location");
+      setState(() {});
+      _getResponse2(locationData.latitude, locationData.longitude);
+    });
+  }
+
+  Future<String> _getResponse2(double lat, double lng) async {
+    developer.log("Getting response");
+    var url = Uri.parse("http://65.1.230.169/api/getsuggestions.php");
+    var response = await http
+        .post(url, body: {"gx": lat.toString(), "gy": lng.toString()});
+    jsonresp = jsonDecode(response.body);
+    //fromloc="YOO";
+int i=0;
+    setState(() {
+      for(i=0;i<(jsonresp.length)&&i<jsonstart.length;i++){
+jsonstart[i]['origin'] = jsonresp[i]['origin'];
+      jsonstart[i]['depart'] = jsonresp[i]['depart'];
+      jsonstart[i]['dest'] = jsonresp[i]['dest'];
+      jsonstart[i]['reach'] = jsonresp[i]['reach'];
+      jsonstart[i]['busname'] = jsonresp[i]['busname'];
+      }
+      
+      //toname = "TO: " + jsonClosests[1]["stopname"];
+    });
+
+    return ("done");
+  }
+
+
   //double pageheight= MediaQuery.of(context).size.height;
   @override
   Widget build(BuildContext context) {
@@ -26,9 +110,7 @@ class _myCardState extends State<myCard> {
       child: SizedBox(
         height: 287, // card height
         child: PageView.builder(
-
           //clipBehavior: Clip.antiAlias,
-
 
           itemCount: 5,
           controller: PageController(viewportFraction: 0.43),
@@ -68,7 +150,7 @@ class _myCardState extends State<myCard> {
                                 bottom: 10,
                                 left: 20,
                                 child: Text(
-                                  abc[i],
+                                  "KSRTC",
                                   style: GoogleFonts.ptMono(
                                     fontSize: 20,
                                     color: Colors.white,
@@ -85,13 +167,13 @@ class _myCardState extends State<myCard> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "Thovala",
+                                      "${jsonstart[i]['origin']}",
                                       style: GoogleFonts.ptSansCaption(
-                                        fontSize: 15,
+                                        fontSize: 13,
                                       ),
                                     ),
                                     Text(
-                                      "08:31 AM",
+                                      "${jsonstart[i]['depart']}",
                                       style: GoogleFonts.ptSansCaption(
                                           fontSize: 12,
                                           color:
@@ -99,21 +181,21 @@ class _myCardState extends State<myCard> {
                                     )
                                   ]),
                               SizedBox(
-                                  width: 25,
+                                  width: 18,
                                   child: Icon(
                                     Icons.arrow_forward,
-                                    size: 20,
+                                    size: 14,
                                   )),
                               Column(
                                 children: [
                                   Text(
-                                    "Kattappana",
+                                    "${jsonstart[i]['dest']}",
                                     style: GoogleFonts.ptSansCaption(
-                                      fontSize: 15,
+                                      fontSize: 13,
                                     ),
                                   ),
                                   Text(
-                                    "09:11 AM",
+                                    "${jsonstart[i]['reach']}",
                                     style: GoogleFonts.ptSansCaption(
                                         fontSize: 12,
                                         color: Color.fromRGBO(120, 0, 0, 100)),
@@ -155,28 +237,27 @@ class _myCardState extends State<myCard> {
                                 ),
                               ],
                             )),
-                            Container(
-                            padding: EdgeInsets.fromLTRB(14, 10, 0, 0),
-                            child:Row(
-                              children: [
-                                Text("Status:",
-                                style: GoogleFonts.ptSansCaption(
-                                  fontSize: 13,
-                                )),
-                                SizedBox(width:7),
-                                Icon(Icons.circle,
-                                size:12,
-                                color:Color.fromRGBO(0, 177, 17, 1)),
-                                SizedBox(
-                                  width:5
-                                ),
-                                Text("On-time",
-                                style:GoogleFonts.ptSansCaption(
-                                  fontSize: 14,
-                                  color: Color.fromRGBO(0, 177, 17, 1),
-                                ))
-                              ],
-                            ),),
+                        Container(
+                          padding: EdgeInsets.fromLTRB(14, 10, 0, 0),
+                          child: Row(
+                            children: [
+                              Text("Status:",
+                                  style: GoogleFonts.ptSansCaption(
+                                    fontSize: 13,
+                                  )),
+                              SizedBox(width: 7),
+                              Icon(Icons.circle,
+                                  size: 12,
+                                  color: Color.fromRGBO(0, 177, 17, 1)),
+                              SizedBox(width: 5),
+                              Text("On-time",
+                                  style: GoogleFonts.ptSansCaption(
+                                    fontSize: 14,
+                                    color: Color.fromRGBO(0, 177, 17, 1),
+                                  ))
+                            ],
+                          ),
+                        ),
                       ],
                     )),
               ),

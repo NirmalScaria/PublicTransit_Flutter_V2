@@ -6,8 +6,10 @@ import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-var closests = [" WHERE ?"];
-
+var closests = [" WHERE ?", " TO?"];
+var fromname=" WHERE?";
+int fromval=0;
+var toname = "WHERE TO?";
 class myFromBox extends StatefulWidget {
   @override
   _myFromBoxState createState() => _myFromBoxState();
@@ -27,17 +29,14 @@ class _myFromBoxState extends State<myFromBox> {
     developer.log("getting");
     setState(() {
       closests[0] = " WHERE?";
+      closests[1] = " TO?";
     });
     location.getLocation().then((LocationData locationData) {
       developer.log("got location");
       setState(() {
         closests[0] = "got location" + locationData.longitude.toString();
       });
-      _getResponse(locationData.latitude, locationData.longitude).then((value) {
-        setState(() {
-          resptext = value;
-        });
-      });
+      _getResponse(locationData.latitude, locationData.longitude);
     });
   }
 
@@ -49,19 +48,18 @@ class _myFromBoxState extends State<myFromBox> {
     jsonClosests = jsonDecode(response.body);
     //fromloc="YOO";
     setState(() {
-      closests[0] = ": " + jsonClosests[0]["stopname"];
+      fromname = ": " + jsonClosests[0]["stopname"];
+      fromval=jsonClosests[0]["stopid"];
+      //toname = "TO: " + jsonClosests[1]["stopname"];
     });
+    developer.log(fromval.toString());
     return ("done");
-
-    //HERE IS THE REMAINING
-    // Make this resptext variable a list. Get all the suggestions. Use it where it is needed.
-    //Change the server side code to give list instead of one value.
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(30, 120, 30, 0),
+      padding: const EdgeInsets.fromLTRB(30, 100, 30, 0),
       child: Column(
         children: [
           Container(
@@ -82,7 +80,7 @@ class _myFromBoxState extends State<myFromBox> {
                   fillColor: Colors.white,
                   filled: true,
                   border: InputBorder.none,
-                  hintText: 'FROM${closests[0]}'),
+                  hintText: 'FROM$fromname'),
             ),
           ),
           DecoratedIcon(
@@ -116,7 +114,7 @@ class _myFromBoxState extends State<myFromBox> {
                   fillColor: Colors.white,
                   filled: true,
                   border: InputBorder.none,
-                  hintText: 'WHERE TO?',
+                  hintText: '$toname',
                   hintStyle: TextStyle(color: Colors.black87)),
             ),
           ),
