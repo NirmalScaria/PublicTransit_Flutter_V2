@@ -37,7 +37,7 @@ class MyBackgroundMap extends StatefulWidget {
 }
 
 class _MyBackgroundMapState extends State<MyBackgroundMap> {
-  GoogleMapController? mapController;
+  late GoogleMapController mapController;
   var location = new Location();
   String? _mapStyle;
   @override
@@ -70,9 +70,9 @@ class _MyBackgroundMapState extends State<MyBackgroundMap> {
     setState(() {
       mapController = controller;
     });
-    rootBundle.loadString('lib/assets/mapstyle.txt').then((string) {
-      mapController?.setMapStyle(string);
-    });
+    developer.log("Loading mapstyle");
+    controller.setMapStyle(mymapstyle);
+
 
     //mapController?.setMapStyle(string);
     //mapController.animateCamera(CameraUpdate )
@@ -81,7 +81,7 @@ class _MyBackgroundMapState extends State<MyBackgroundMap> {
       LatLng latLng = new LatLng(
           locationData.latitude + 0.14, locationData.longitude - 0.86);
       CameraUpdate cameraUpdate = CameraUpdate.newLatLngZoom(latLng, 13);
-      mapController?.animateCamera(cameraUpdate);
+      mapController.animateCamera(cameraUpdate);
       fromBoxState.getResponse(
           locationData.latitude + 0.14, locationData.longitude - 0.86);
       cardState.getResponse2(
