@@ -5,17 +5,24 @@ import 'package:decorated_icon/decorated_icon.dart';
 import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'myGlobals.dart';
 
 var closests = [" WHERE ?", " TO?"];
-var fromname=" WHERE?";
-int fromval=0;
+var fromname = " WHERE?";
+int fromval = 0;
 var toname = "WHERE TO?";
+
+late _MyFromBoxState fromBoxState;
+
 class myFromBox extends StatefulWidget {
   @override
-  _myFromBoxState createState() => _myFromBoxState();
+  _MyFromBoxState createState() {
+    fromBoxState = _MyFromBoxState();
+    return fromBoxState;
+  }
 }
 
-class _myFromBoxState extends State<myFromBox> {
+class _MyFromBoxState extends State<myFromBox> {
   var location = new Location();
   var resptext = "0";
   var jsonClosests = [];
@@ -31,16 +38,10 @@ class _myFromBoxState extends State<myFromBox> {
       closests[0] = " WHERE?";
       closests[1] = " TO?";
     });
-    location.getLocation().then((LocationData locationData) {
-      developer.log("got location");
-      setState(() {
-        closests[0] = "got location" + locationData.longitude.toString();
-      });
-      _getResponse(locationData.latitude, locationData.longitude);
-    });
+    location.getLocation().then((LocationData locationData) {});
   }
 
-  Future<String> _getResponse(double lat, double lng) async {
+  Future<String> getResponse(double lat, double lng) async {
     closests[0] = " (LOADING)";
     var url = Uri.parse("http://65.1.230.169/api/findclosestjson.php");
     var response = await http
@@ -49,7 +50,7 @@ class _myFromBoxState extends State<myFromBox> {
     //fromloc="YOO";
     setState(() {
       fromname = ": " + jsonClosests[0]["stopname"];
-      fromval=jsonClosests[0]["stopid"];
+      fromval = jsonClosests[0]["stopid"];
       //toname = "TO: " + jsonClosests[1]["stopname"];
     });
     developer.log(fromval.toString());

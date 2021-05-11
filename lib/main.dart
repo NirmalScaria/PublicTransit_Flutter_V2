@@ -7,7 +7,6 @@ import 'myFromandTo.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'myGlobals.dart';
 import 'package:http/http.dart' as http;
-
 import 'dart:developer' as developer;
 
 void main() {
@@ -34,16 +33,14 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: false,
-
-
       body: Container(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
         child: Stack(
           children: [
             MyBackgroundMap(),
+            MyCard(),
             myFromBox(),
-            myCard(),
           ],
         ),
       ),

@@ -10,95 +10,94 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class myCard extends StatefulWidget {
+late _MyCardState cardState;
+
+class MyCard extends StatefulWidget {
   @override
-  _myCardState createState() => _myCardState();
+  _MyCardState createState() {
+    cardState = _MyCardState();
+    return cardState;
+  }
 }
 
-class _myCardState extends State<myCard> {
+class _MyCardState extends State<MyCard> {
   int _index = 0;
   var jsonresp = [];
-  var location = new Location();
+  //var location = new Location();
   var jsonstart = [
     {
-      'origin': "Loading", 
-      'dest': 'Loading', 
+      'origin': "Loading",
+      'dest': 'Loading',
       'depart': '--:--',
       'reach': '--:--',
       'busname': 'Loading...'
-      },
-{
-      'origin': "--------", 
-      'dest': '--------', 
+    },
+    {
+      'origin': "--------",
+      'dest': '--------',
       'depart': '--:--',
       'reach': '--:--',
       'busname': 'Loading...'
-      },
-      {
-      'origin': "--------", 
-      'dest': '--------', 
+    },
+    {
+      'origin': "--------",
+      'dest': '--------',
       'depart': '--:--',
       'reach': '--:--',
       'busname': 'Loading...'
-      },
-      {
-      'origin': "--------", 
-      'dest': '--------', 
+    },
+    {
+      'origin': "--------",
+      'dest': '--------',
       'depart': '--:--',
       'reach': '--:--',
       'busname': 'Loading...'
-      },
-      {
-      'origin': "--------", 
-      'dest': '--------', 
+    },
+    {
+      'origin': "--------",
+      'dest': '--------',
       'depart': '--:--',
       'reach': '--:--',
       'busname': 'Loading...'
-      },
-      {
-      'origin': "--------", 
-      'dest': '--------', 
+    },
+    {
+      'origin': "--------",
+      'dest': '--------',
       'depart': '--:--',
       'reach': '--:--',
       'busname': 'Loading...'
-      },
+    },
   ];
   @override
   void initState() {
     super.initState();
     developer.log("getting");
     setState(() {});
-    location.getLocation().then((LocationData locationData) {
-      developer.log("nothing yet");
-      developer.log("got location");
-      setState(() {});
-      _getResponse2(locationData.latitude, locationData.longitude);
-    });
+    location.getLocation().then((LocationData locationData) {});
   }
 
-  Future<String> _getResponse2(double lat, double lng) async {
+  Future<String> getResponse2(double lat, double lng) async {
     developer.log("Getting response");
     var url = Uri.parse("http://65.1.230.169/api/getsuggestions.php");
     var response = await http
         .post(url, body: {"gx": lat.toString(), "gy": lng.toString()});
     jsonresp = jsonDecode(response.body);
     //fromloc="YOO";
-int i=0;
+    int i = 0;
     setState(() {
-      for(i=0;i<(jsonresp.length)&&i<jsonstart.length;i++){
-jsonstart[i]['origin'] = jsonresp[i]['origin'];
-      jsonstart[i]['depart'] = jsonresp[i]['depart'];
-      jsonstart[i]['dest'] = jsonresp[i]['dest'];
-      jsonstart[i]['reach'] = jsonresp[i]['reach'];
-      jsonstart[i]['busname'] = jsonresp[i]['busname'];
+      for (i = 0; i < (jsonresp.length) && i < jsonstart.length; i++) {
+        jsonstart[i]['origin'] = jsonresp[i]['origin'];
+        jsonstart[i]['depart'] = jsonresp[i]['depart'];
+        jsonstart[i]['dest'] = jsonresp[i]['dest'];
+        jsonstart[i]['reach'] = jsonresp[i]['reach'];
+        jsonstart[i]['busname'] = jsonresp[i]['busname'];
       }
-      
+
       //toname = "TO: " + jsonClosests[1]["stopname"];
     });
 
     return ("done");
   }
-
 
   //double pageheight= MediaQuery.of(context).size.height;
   @override

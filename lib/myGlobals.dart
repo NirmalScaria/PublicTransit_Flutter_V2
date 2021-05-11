@@ -1,1 +1,2 @@
-String _mapStyle = "";
+import 'package:location/location.dart';
+var location = new Location();
