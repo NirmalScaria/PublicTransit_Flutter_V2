@@ -33,7 +33,6 @@ class _MyFromBoxState extends State<myFromBox> {
   //When response is got, he location value is updated.
   void initState() {
     super.initState();
-    developer.log("getting");
     setState(() {
       closests[0] = " WHERE?";
       closests[1] = " TO?";
@@ -41,19 +40,16 @@ class _MyFromBoxState extends State<myFromBox> {
     location.getLocation().then((LocationData locationData) {});
   }
 
-  Future<String> getResponse(double lat, double lng) async {
+  Future<String> setFromBoxLocation(double lat, double lng) async {
     closests[0] = " (LOADING)";
     var url = Uri.parse("http://65.1.230.169/api/findclosestjson.php");
     var response = await http
         .post(url, body: {"gx": lat.toString(), "gy": lng.toString()});
     jsonClosests = jsonDecode(response.body);
-    //fromloc="YOO";
     setState(() {
       fromname = ": " + jsonClosests[0]["stopname"];
       fromval = jsonClosests[0]["stopid"];
-      //toname = "TO: " + jsonClosests[1]["stopname"];
     });
-    developer.log(fromval.toString());
     return ("done");
   }
 

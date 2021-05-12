@@ -23,83 +23,40 @@ class MyCard extends StatefulWidget {
 class _MyCardState extends State<MyCard> {
   int _index = 0;
   var jsonresp = [];
-  //var location = new Location();
-  var jsonstart = [
+  var jsonstartone = [
     {
       'origin': "Loading",
       'dest': 'Loading',
       'depart': '--:--',
       'reach': '--:--',
       'busname': 'Loading...'
-    },
-    {
-      'origin': "--------",
-      'dest': '--------',
-      'depart': '--:--',
-      'reach': '--:--',
-      'busname': 'Loading...'
-    },
-    {
-      'origin': "--------",
-      'dest': '--------',
-      'depart': '--:--',
-      'reach': '--:--',
-      'busname': 'Loading...'
-    },
-    {
-      'origin': "--------",
-      'dest': '--------',
-      'depart': '--:--',
-      'reach': '--:--',
-      'busname': 'Loading...'
-    },
-    {
-      'origin': "--------",
-      'dest': '--------',
-      'depart': '--:--',
-      'reach': '--:--',
-      'busname': 'Loading...'
-    },
-    {
-      'origin': "--------",
-      'dest': '--------',
-      'depart': '--:--',
-      'reach': '--:--',
-      'busname': 'Loading...'
-    },
+    }
   ];
+  var jsonstart = [];
+  int i = 0;
+
   @override
   void initState() {
     super.initState();
-    developer.log("getting");
-    setState(() {});
-    location.getLocation().then((LocationData locationData) {});
+    for (i = 0; i < 15; i++) {
+      jsonstart = jsonstart + jsonstartone;
+    }
   }
 
-  Future<String> getResponse2(double lat, double lng) async {
-    developer.log("Getting response");
+  Future<String> loadCardsData(double lat, double lng) async {
     var url = Uri.parse("http://65.1.230.169/api/getsuggestions.php");
     var response = await http
         .post(url, body: {"gx": lat.toString(), "gy": lng.toString()});
     jsonresp = jsonDecode(response.body);
-    //fromloc="YOO";
-    int i = 0;
+
     setState(() {
-      for (i = 0; i < (jsonresp.length) && i < jsonstart.length; i++) {
-        jsonstart[i]['origin'] = jsonresp[i]['origin'];
-        jsonstart[i]['depart'] = jsonresp[i]['depart'];
-        jsonstart[i]['dest'] = jsonresp[i]['dest'];
-        jsonstart[i]['reach'] = jsonresp[i]['reach'];
-        jsonstart[i]['busname'] = jsonresp[i]['busname'];
-      }
-
-      //toname = "TO: " + jsonClosests[1]["stopname"];
+      jsonstart = jsonresp;
     });
-
+    developer.log(jsonstart.toString());
+    developer.log(jsonresp.toString());
     return ("done");
   }
 
-  //double pageheight= MediaQuery.of(context).size.height;
   @override
   Widget build(BuildContext context) {
     return Positioned(
@@ -107,11 +64,9 @@ class _MyCardState extends State<MyCard> {
       width: MediaQuery.of(context).size.width + 150,
       top: MediaQuery.of(context).size.height - 30 - 287,
       child: SizedBox(
-        height: 287, // card height
+        height: 287,
         child: PageView.builder(
-          //clipBehavior: Clip.antiAlias,
-
-          itemCount: 5,
+          itemCount: 14,
           controller: PageController(viewportFraction: 0.43),
           onPageChanged: (int index) => setState(() => _index = index),
           itemBuilder: (_, i) {
@@ -163,21 +118,21 @@ class _MyCardState extends State<MyCard> {
                           child: Row(
                             children: [
                               Container(
-                                width:75,
+                                width: 75,
                                 child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         "${jsonstart[i]['origin']}",
                                         style: GoogleFonts.ptSansCaption(
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w500
-                                        ),
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500),
                                       ),
                                       Text(
                                         "${jsonstart[i]['depart']}",
                                         style: GoogleFonts.ptSansCaption(
-                                          fontWeight: FontWeight.w900,
+                                            fontWeight: FontWeight.w900,
                                             fontSize: 13,
                                             color:
                                                 Color.fromRGBO(120, 0, 0, 100)),
@@ -191,7 +146,7 @@ class _MyCardState extends State<MyCard> {
                                     size: 14,
                                   )),
                               Container(
-                                width:75,
+                                width: 75,
                                 child: Column(
                                   children: [
                                     Text(
@@ -204,9 +159,10 @@ class _MyCardState extends State<MyCard> {
                                     Text(
                                       "${jsonstart[i]['reach']}",
                                       style: GoogleFonts.ptSansCaption(
-                                        fontWeight: FontWeight.w900,
+                                          fontWeight: FontWeight.w900,
                                           fontSize: 13,
-                                          color: Color.fromRGBO(120, 0, 0, 100)),
+                                          color:
+                                              Color.fromRGBO(120, 0, 0, 100)),
                                     )
                                   ],
                                   crossAxisAlignment: CrossAxisAlignment.start,
