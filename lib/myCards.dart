@@ -52,8 +52,6 @@ class _MyCardState extends State<MyCard> {
     setState(() {
       jsonstart = jsonresp;
     });
-    developer.log(jsonstart.toString());
-    developer.log(jsonresp.toString());
     return ("done");
   }
 

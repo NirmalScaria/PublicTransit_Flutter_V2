@@ -1,5 +1,8 @@
 import 'package:location/location.dart';
 var location = new Location();
+var isfromfocused = 0;
+
+
 
 var mymapstyle = """
 [

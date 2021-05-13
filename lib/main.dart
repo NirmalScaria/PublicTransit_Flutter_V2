@@ -39,7 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Stack(
           children: [
             MyBackgroundMap(),
-            MyCard(),
+            if(isfromfocused==0) MyCard(),
             myFromBox(),
           ],
         ),

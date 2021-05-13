@@ -6,12 +6,12 @@ import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'myGlobals.dart';
-
+import 'myAutoSuggestions.dart';
 var closests = [" WHERE ?", " TO?"];
 var fromname = " WHERE?";
 int fromval = 0;
 var toname = "WHERE TO?";
-
+  
 late _MyFromBoxState fromBoxState;
 
 class myFromBox extends StatefulWidget {
@@ -47,7 +47,7 @@ class _MyFromBoxState extends State<myFromBox> {
         .post(url, body: {"gx": lat.toString(), "gy": lng.toString()});
     jsonClosests = jsonDecode(response.body);
     setState(() {
-      fromname = ": " + jsonClosests[0]["stopname"];
+      fromname = "" + jsonClosests[0]["stopname"];
       fromval = jsonClosests[0]["stopid"];
     });
     return ("done");
@@ -56,9 +56,96 @@ class _MyFromBoxState extends State<myFromBox> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(30, 100, 30, 0),
+      padding: EdgeInsets.fromLTRB(20, 60, 20, 0),
       child: Column(
         children: [
+          AnimatedContainer(
+              curve: Curves.fastOutSlowIn,
+              duration: Duration(milliseconds: 500),
+              margin: isfromfocused == 1
+                  ? EdgeInsets.fromLTRB(0, 0, 0, 0)
+                  : EdgeInsets.fromLTRB(10, 40, 10, 0),
+              padding: isfromfocused == 0
+                  ? EdgeInsets.fromLTRB(0, 0, 0, 0)
+                  : EdgeInsets.fromLTRB(10, 10, 10, 10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: isfromfocused == 0
+                    ? BorderRadius.zero
+                    : BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black38,
+                    blurRadius: 17,
+                    offset: const Offset(0, 0),
+                  ),
+                ],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isfromfocused = 1;
+                      });
+                    },
+                    child: AnimatedContainer(
+                        curve: Curves.fastOutSlowIn,
+                        duration: Duration(milliseconds: 500),
+                        width: 290,
+                        decoration: BoxDecoration(
+                            color: isfromfocused == 0
+                                ? Colors.white
+                                : Colors.black12,
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Row(
+                          children: [
+                            SizedBox(width: 10),
+                            Icon(
+                              Icons.location_searching_rounded,
+                            ),
+                            SizedBox(width: 7),
+                            Text("FROM: ",
+                                style: TextStyle(
+                                  fontSize: 17,
+                                  color: Colors.black87,
+                                )),
+                            Expanded(
+                              child: TextField(
+                                textCapitalization:
+                                    TextCapitalization.characters,
+                                decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: '$fromname'),
+                                onTap: () {
+                                  setState(() {
+                                    isfromfocused = 1;
+                                  });
+                                },
+                              ),
+                            ),
+                          ],
+                        )),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        isfromfocused = 0;
+                      });
+                    },
+                    child: Container(
+                        color: Colors.white,
+                        height: 40,
+                        width: 40,
+                        child: isfromfocused == 0
+                            ? SizedBox(width: 5)
+                            : Icon(Icons.arrow_back)),
+                  )
+                ],
+              )),
+ FromSuggestionsBox(),
+          /* From OLD
           Container(
             decoration: BoxDecoration(
               boxShadow: [
@@ -81,6 +168,7 @@ class _MyFromBoxState extends State<myFromBox> {
                   hintText: 'FROM$fromname'),
             ),
           ),
+          */
           DecoratedIcon(
             Icons.more_vert,
             color: Colors.white,
