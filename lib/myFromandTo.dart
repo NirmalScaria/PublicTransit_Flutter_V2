@@ -70,6 +70,7 @@ class _MyFromBoxState extends State<myFromBox> {
               ],
             ),
             child: TextField(
+              textCapitalization: TextCapitalization.characters,
               decoration: InputDecoration(
                   prefixIcon: const Icon(
                     Icons.location_searching_rounded,
@@ -103,6 +104,7 @@ class _MyFromBoxState extends State<myFromBox> {
               ],
             ),
             child: TextField(
+              textCapitalization: TextCapitalization.characters,
               decoration: InputDecoration(
                   prefixIcon: const Icon(
                     Icons.location_on_rounded,
