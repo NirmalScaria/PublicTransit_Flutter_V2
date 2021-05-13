@@ -118,7 +118,7 @@ class _MyCardState extends State<MyCard> {
                           child: Row(
                             children: [
                               Container(
-                                width: 75,
+                                constraints: BoxConstraints(maxWidth: 75),
                                 child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -140,32 +140,35 @@ class _MyCardState extends State<MyCard> {
                                     ]),
                               ),
                               SizedBox(
-                                  width: 18,
+                                  width: 23,
                                   child: Icon(
                                     Icons.arrow_forward,
                                     size: 14,
                                   )),
-                              Container(
-                                width: 75,
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      "${jsonstart[i]['dest']}",
-                                      style: GoogleFonts.ptSansCaption(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    Text(
-                                      "${jsonstart[i]['reach']}",
-                                      style: GoogleFonts.ptSansCaption(
-                                          fontWeight: FontWeight.w900,
+                              Expanded(
+                                                              child: Container(
+                                  constraints: BoxConstraints(),
+                                  //color:Colors.red,
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        "${jsonstart[i]['dest']}",
+                                        style: GoogleFonts.ptSansCaption(
                                           fontSize: 13,
-                                          color:
-                                              Color.fromRGBO(120, 0, 0, 100)),
-                                    )
-                                  ],
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      Text(
+                                        "${jsonstart[i]['reach']}",
+                                        style: GoogleFonts.ptSansCaption(
+                                            fontWeight: FontWeight.w900,
+                                            fontSize: 13,
+                                            color:
+                                                Color.fromRGBO(120, 0, 0, 100)),
+                                      )
+                                    ],
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                  ),
                                 ),
                               )
                             ],
