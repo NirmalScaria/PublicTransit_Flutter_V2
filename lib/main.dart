@@ -8,7 +8,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'myGlobals.dart';
 import 'package:http/http.dart' as http;
 import 'dart:developer' as developer;
-
+//STARTING AUTOSUGESTIONS PROJECT
 void main() {
   runApp(MyApp());
 }
