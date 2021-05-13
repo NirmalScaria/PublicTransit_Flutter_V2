@@ -62,10 +62,11 @@ class _MyCardState extends State<MyCard> {
     return Positioned(
       left: -150,
       width: MediaQuery.of(context).size.width + 150,
-      top: MediaQuery.of(context).size.height - 30 - 287,
+      bottom:30,
       child: SizedBox(
-        height: 287,
+        height: 307,
         child: PageView.builder(
+          physics: BouncingScrollPhysics(),
           itemCount: 14,
           controller: PageController(viewportFraction: 0.43),
           onPageChanged: (int index) => setState(() => _index = index),
@@ -73,7 +74,7 @@ class _MyCardState extends State<MyCard> {
             return Transform.scale(
               scale: i == _index ? 1 : 0.9,
               child: Container(
-                margin: EdgeInsets.only(left: 30),
+                margin: EdgeInsets.fromLTRB(30,10,0,10),
                 child: Card(
                     elevation: 5,
                     shape: RoundedRectangleBorder(
