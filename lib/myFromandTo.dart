@@ -7,11 +7,14 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'myGlobals.dart';
 import 'myAutoSuggestions.dart';
+import 'package:back_button_interceptor/back_button_interceptor.dart';
+
+
 var closests = [" WHERE ?", " TO?"];
 var fromname = " WHERE?";
 int fromval = 0;
 var toname = "WHERE TO?";
-  
+
 late _MyFromBoxState fromBoxState;
 
 class myFromBox extends StatefulWidget {
@@ -33,11 +36,26 @@ class _MyFromBoxState extends State<myFromBox> {
   //When response is got, he location value is updated.
   void initState() {
     super.initState();
+    BackButtonInterceptor.add(myInterceptor);
     setState(() {
       closests[0] = " WHERE?";
       closests[1] = " TO?";
     });
     location.getLocation().then((LocationData locationData) {});
+  }
+
+  void dispose() {
+    BackButtonInterceptor.remove(myInterceptor);
+    super.dispose();
+  }
+
+  bool  myInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+    setState(() {
+      isfromfocused1 = 0;
+      isfromfocused = 0;
+      
+    });
+    return true;
   }
 
   Future<String> setFromBoxLocation(double lat, double lng) async {
@@ -87,6 +105,7 @@ class _MyFromBoxState extends State<myFromBox> {
                   GestureDetector(
                     onTap: () {
                       setState(() {
+                        isfromfocused1 = 1;
                         isfromfocused = 1;
                       });
                     },
@@ -121,6 +140,8 @@ class _MyFromBoxState extends State<myFromBox> {
                                 onTap: () {
                                   setState(() {
                                     isfromfocused = 1;
+
+                                    isfromfocused1 = 1;
                                   });
                                 },
                               ),
@@ -133,6 +154,10 @@ class _MyFromBoxState extends State<myFromBox> {
                       setState(() {
                         isfromfocused = 0;
                       });
+                      FocusScope.of(context).unfocus();
+                      setState(() {
+                        isfromfocused1 = 0;
+                      });
                     },
                     child: Container(
                         color: Colors.white,
@@ -144,7 +169,7 @@ class _MyFromBoxState extends State<myFromBox> {
                   )
                 ],
               )),
- FromSuggestionsBox(),
+          FromSuggestionsBox(),
           /* From OLD
           Container(
             decoration: BoxDecoration(
@@ -169,42 +194,44 @@ class _MyFromBoxState extends State<myFromBox> {
             ),
           ),
           */
-          DecoratedIcon(
-            Icons.more_vert,
-            color: Colors.white,
-            size: 80,
-            shadows: [
-              BoxShadow(
-                blurRadius: 12.0,
-                color: Colors.black54,
-              ),
-            ],
-          ),
-          Container(
-            margin: EdgeInsets.only(top: 0),
-            decoration: BoxDecoration(
-              boxShadow: [
+          if (isfromfocused1 == 0)
+            DecoratedIcon(
+              Icons.more_vert,
+              color: Colors.white,
+              size: 80,
+              shadows: [
                 BoxShadow(
-                  color: Colors.black38,
-                  blurRadius: 17,
-                  offset: const Offset(0, 0),
+                  blurRadius: 12.0,
+                  color: Colors.black54,
                 ),
               ],
             ),
-            child: TextField(
-              textCapitalization: TextCapitalization.characters,
-              decoration: InputDecoration(
-                  prefixIcon: const Icon(
-                    Icons.location_on_rounded,
-                    color: Colors.black87,
+          if (isfromfocused1 == 0)
+            Container(
+              margin: EdgeInsets.only(top: 0),
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black38,
+                    blurRadius: 17,
+                    offset: const Offset(0, 0),
                   ),
-                  fillColor: Colors.white,
-                  filled: true,
-                  border: InputBorder.none,
-                  hintText: '$toname',
-                  hintStyle: TextStyle(color: Colors.black87)),
+                ],
+              ),
+              child: TextField(
+                textCapitalization: TextCapitalization.characters,
+                decoration: InputDecoration(
+                    prefixIcon: const Icon(
+                      Icons.location_on_rounded,
+                      color: Colors.black87,
+                    ),
+                    fillColor: Colors.white,
+                    filled: true,
+                    border: InputBorder.none,
+                    hintText: '$toname',
+                    hintStyle: TextStyle(color: Colors.black87)),
+              ),
             ),
-          ),
         ],
       ),
     );

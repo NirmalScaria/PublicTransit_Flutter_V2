@@ -1,7 +1,23 @@
 import 'package:location/location.dart';
 var location = new Location();
 var isfromfocused = 0;
-
+var isfromfocused1=0;
+  int i = 0;
+var jsonstartone = [
+    {
+      'origin': "Loading",
+      'dest': 'Loading',
+      'depart': '--:--',
+      'reach': '--:--',
+      'busname': 'Loading...'
+    }
+  ];
+  var jsonsuggestions = [];
+void myMainInit(){
+    for (i = 0; i < 15; i++) {
+      jsonsuggestions = jsonsuggestions + jsonstartone;
+    }
+}
 
 
 var mymapstyle = """

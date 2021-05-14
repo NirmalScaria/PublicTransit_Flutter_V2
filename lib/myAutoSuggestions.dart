@@ -35,7 +35,7 @@ class _FromSuggestionsBoxState extends State<FromSuggestionsBox> {
           curve: Curves.fastOutSlowIn,
           margin: isfromfocused==0? EdgeInsets.only(top: 0, left:10, right:10) : EdgeInsets.only(top: 10),
           child: Text(""),
-          height: isfromfocused==0? 0 : 500,
+          height: isfromfocused==0? 0 : MediaQuery.of(context).size.height-280,
           decoration: BoxDecoration(
             
             color: isfromfocused==0? Color.fromRGBO(255, 255, 255, 0.3) : Color.fromRGBO(255, 255, 255, 1),

@@ -23,24 +23,12 @@ class MyCard extends StatefulWidget {
 class _MyCardState extends State<MyCard> {
   int _index = 0;
   var jsonresp = [];
-  var jsonstartone = [
-    {
-      'origin': "Loading",
-      'dest': 'Loading',
-      'depart': '--:--',
-      'reach': '--:--',
-      'busname': 'Loading...'
-    }
-  ];
-  var jsonstart = [];
-  int i = 0;
+
 
   @override
   void initState() {
     super.initState();
-    for (i = 0; i < 15; i++) {
-      jsonstart = jsonstart + jsonstartone;
-    }
+
   }
 
   Future<String> loadCardsData(double lat, double lng) async {
@@ -50,7 +38,7 @@ class _MyCardState extends State<MyCard> {
     jsonresp = jsonDecode(response.body);
 
     setState(() {
-      jsonstart = jsonresp;
+      jsonsuggestions = jsonresp;
     });
     return ("done");
   }
@@ -70,7 +58,8 @@ class _MyCardState extends State<MyCard> {
           onPageChanged: (int index) => setState(() => _index = index),
           itemBuilder: (_, i) {
             return Transform.scale(
-              scale: i == _index ? 1 : 0.9,
+              //scale:isfromfocused == 0 ? ( i == _index ? 1 : 0.9 ): 0.01,
+              scale:i == _index ? 1 : 0.9,
               child: Container(
                 margin: EdgeInsets.fromLTRB(30,10,0,10),
                 child: Card(
@@ -123,13 +112,13 @@ class _MyCardState extends State<MyCard> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        "${jsonstart[i]['origin']}",
+                                        "${jsonsuggestions[i]['origin']}",
                                         style: GoogleFonts.ptSansCaption(
                                             fontSize: 13,
                                             fontWeight: FontWeight.w500),
                                       ),
                                       Text(
-                                        "${jsonstart[i]['depart']}",
+                                        "${jsonsuggestions[i]['depart']}",
                                         style: GoogleFonts.ptSansCaption(
                                             fontWeight: FontWeight.w900,
                                             fontSize: 13,
@@ -151,14 +140,14 @@ class _MyCardState extends State<MyCard> {
                                   child: Column(
                                     children: [
                                       Text(
-                                        "${jsonstart[i]['dest']}",
+                                        "${jsonsuggestions[i]['dest']}",
                                         style: GoogleFonts.ptSansCaption(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w500,
                                         ),
                                       ),
                                       Text(
-                                        "${jsonstart[i]['reach']}",
+                                        "${jsonsuggestions[i]['reach']}",
                                         style: GoogleFonts.ptSansCaption(
                                             fontWeight: FontWeight.w900,
                                             fontSize: 13,
