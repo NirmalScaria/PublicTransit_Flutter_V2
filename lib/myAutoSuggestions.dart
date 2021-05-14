@@ -6,6 +6,8 @@ import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'myGlobals.dart';
+import 'package:google_fonts/google_fonts.dart';
+
 
 class FromSuggestionsBox extends StatefulWidget {
   @override
@@ -13,41 +15,92 @@ class FromSuggestionsBox extends StatefulWidget {
 }
 
 class _FromSuggestionsBoxState extends State<FromSuggestionsBox> {
-  double _myheight=10;
+  double _myheight = 10;
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    setState(() {
-      _myheight=10;
-    });
-    setState(() {
-      _myheight=500;
-    });
-  }
+
+
+  
+
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
 
-      child: AnimatedContainer(
+    return AnimatedContainer(
           duration: Duration(milliseconds: 800),
           curve: Curves.fastOutSlowIn,
-          margin: isfromfocused==0? EdgeInsets.only(top: 0, left:10, right:10) : EdgeInsets.only(top: 10),
-          child: Text(""),
-          height: isfromfocused==0? 0 : MediaQuery.of(context).size.height-280,
+          margin: isfromfocused == 0
+              ? EdgeInsets.only(top: 0, left: 10, right: 10)
+              : EdgeInsets.only(top: 10),
+          height:
+              isfromfocused == 0 ? 0 : MediaQuery.of(context).size.height - 280,
           decoration: BoxDecoration(
-            
-            color: isfromfocused==0? Color.fromRGBO(255, 255, 255, 0.3) : Color.fromRGBO(255, 255, 255, 1),
-            borderRadius:  BorderRadius.circular(14),
+            color: isfromfocused == 0
+                ? Color.fromRGBO(255, 255, 255, 0.3)
+                : Color.fromRGBO(255, 255, 255, 1),
+            borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
-                color: isfromfocused==0? Color.fromRGBO(255, 255, 255, 0) : Colors.black38,
+                color: isfromfocused == 0
+                    ? Color.fromRGBO(255, 255, 255, 0)
+                    : Colors.black38,
                 blurRadius: 17,
                 offset: const Offset(0, 0),
               ),
             ],
-          )),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(25.0),
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              if(isfromfocused1==1) Text(
+                "Nearby",
+                style: GoogleFonts.ptSansCaption(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 14,
+                    color: Color.fromRGBO(152, 152, 152, 1)),
+              ),
+              SizedBox(height:8),
+              Expanded(
+                child: AnimatedList(
+                  key: listKey,
+                  initialItemCount: 0,
+                  itemBuilder: (context, index, animation) {
+                    return slideIt(context, index, animation);
+                  },
+                ),
+              )
+
+              /*
+              Expanded(
+                child: AnimatedList(
+                  key:listKey,
+                    padding: EdgeInsets.all(8),
+                    initialItemCount: 3,
+                    itemBuilder: (context, index, animation) {
+                      return SlideIt(
+                        position:animation.drive(),
+                                              child: Row(
+                          children: [
+                            Icon(
+                              Icons.location_on_outlined,
+                              color: Colors.black87,
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text("ERATTAYAR",
+                                style: GoogleFonts.ptSansCaption(
+                                  fontSize: 17,
+                                  color: Colors.black87,
+                                )),
+                          ],
+                        ),
+                      );
+                    },
+                    ),
+              )
+              */
+            ]),
+          ),
     );
   }
 }

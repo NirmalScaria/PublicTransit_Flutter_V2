@@ -8,7 +8,7 @@ import 'dart:convert';
 import 'myGlobals.dart';
 import 'myAutoSuggestions.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
-
+import 'dart:io';
 
 var closests = [" WHERE ?", " TO?"];
 var fromname = " WHERE?";
@@ -28,7 +28,7 @@ class myFromBox extends StatefulWidget {
 class _MyFromBoxState extends State<myFromBox> {
   var location = new Location();
   var resptext = "0";
-  var jsonClosests = [];
+
   @override
 
   //Init state of the form boxes execute a get location command.
@@ -44,17 +44,52 @@ class _MyFromBoxState extends State<myFromBox> {
     location.getLocation().then((LocationData locationData) {});
   }
 
+  void openfrombox() async {
+    if(isfromfocused==0){
+    setState(() {
+
+      isfromfocused = 1;
+      isfromfocused1 = 1;
+    });
+    for (int i = 0; i < jsonClosests.length-1; i++) {
+      setState(() {
+        listKey.currentState?.insertItem(items.length,
+            duration: const Duration(milliseconds: 600));
+        items = []
+          ..add(counter++)
+          ..addAll(items);
+      });
+      await Future.delayed(Duration(milliseconds: i<10? i*40 : 20));
+    }
+    }
+  }
+
+  void closefromobox() async {
+    if(isfromfocused==1){
+    setState(() {
+      isfromfocused1 = 0;
+      isfromfocused = 0;
+    });
+    while(items.length>-1){
+    if (items.length <= 1) return;
+    listKey.currentState?.removeItem(
+        items.length-1, (_, animation) => slideIt(context, 0, animation),
+        duration: const Duration(milliseconds: 1));
+    setState(() {
+      items.removeAt(0);
+    });
+    }
+    items=[];
+    counter=0;
+  }}
+
   void dispose() {
     BackButtonInterceptor.remove(myInterceptor);
     super.dispose();
   }
 
-  bool  myInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
-    setState(() {
-      isfromfocused1 = 0;
-      isfromfocused = 0;
-      
-    });
+  bool myInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
+    closefromobox();
     return true;
   }
 
@@ -63,8 +98,9 @@ class _MyFromBoxState extends State<myFromBox> {
     var url = Uri.parse("http://65.1.230.169/api/findclosestjson.php");
     var response = await http
         .post(url, body: {"gx": lat.toString(), "gy": lng.toString()});
-    jsonClosests = jsonDecode(response.body);
+    
     setState(() {
+      jsonClosests = jsonDecode(response.body);
       fromname = "" + jsonClosests[0]["stopname"];
       fromval = jsonClosests[0]["stopid"];
     });
@@ -104,10 +140,7 @@ class _MyFromBoxState extends State<myFromBox> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      setState(() {
-                        isfromfocused1 = 1;
-                        isfromfocused = 1;
-                      });
+                      openfrombox();
                     },
                     child: AnimatedContainer(
                         curve: Curves.fastOutSlowIn,
@@ -122,7 +155,7 @@ class _MyFromBoxState extends State<myFromBox> {
                           children: [
                             SizedBox(width: 10),
                             Icon(
-                              Icons.location_searching_rounded,
+                              Icons.my_location,
                             ),
                             SizedBox(width: 7),
                             Text("FROM: ",
@@ -137,13 +170,7 @@ class _MyFromBoxState extends State<myFromBox> {
                                 decoration: InputDecoration(
                                     border: InputBorder.none,
                                     hintText: '$fromname'),
-                                onTap: () {
-                                  setState(() {
-                                    isfromfocused = 1;
-
-                                    isfromfocused1 = 1;
-                                  });
-                                },
+                                onTap: openfrombox,
                               ),
                             ),
                           ],
@@ -151,13 +178,8 @@ class _MyFromBoxState extends State<myFromBox> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      setState(() {
-                        isfromfocused = 0;
-                      });
+                      closefromobox();
                       FocusScope.of(context).unfocus();
-                      setState(() {
-                        isfromfocused1 = 0;
-                      });
                     },
                     child: Container(
                         color: Colors.white,

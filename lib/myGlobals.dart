@@ -1,24 +1,83 @@
 import 'package:location/location.dart';
+
+import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:location/location.dart';
+import 'package:decorated_icon/decorated_icon.dart';
+import 'dart:developer' as developer;
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:google_fonts/google_fonts.dart';
+
 var location = new Location();
 var isfromfocused = 0;
-var isfromfocused1=0;
-  int i = 0;
-var jsonstartone = [
-    {
-      'origin': "Loading",
-      'dest': 'Loading',
-      'depart': '--:--',
-      'reach': '--:--',
-      'busname': 'Loading...'
-    }
-  ];
-  var jsonsuggestions = [];
-void myMainInit(){
-    for (i = 0; i < 15; i++) {
-      jsonsuggestions = jsonsuggestions + jsonstartone;
-    }
+var isfromfocused1 = 0;
+var jsonClosests = [];
+int i = 0;
+var itemstring = [
+  "ertyr",
+  "otakdjf",
+  "djfk",
+  "ertyr",
+  "otakdjf",
+  "djfk",
+  "ertyr",
+  "otakdjf",
+  "djfk",
+  "ertyr",
+  "otakdjf",
+  "djfk"
+];
+
+final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
+int counter = 0;
+List items = [];
+
+Widget slideIt(BuildContext context, int index, animation) {
+  var item = jsonClosests[index]['stopname'];
+  return SlideTransition(
+    position: Tween<Offset>(
+      begin: const Offset(1.5, 0),
+      end: Offset(0, 0),
+    ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutQuad)),
+    child: SizedBox(
+      // Actual widget to display
+      height: 50.0,
+      child: Row(
+        children: [
+          Icon(
+            Icons.location_on_outlined,
+            color: Colors.black87,
+          ),
+          SizedBox(
+            width: 10,
+          ),
+          Text(item.toString(),
+              style: GoogleFonts.ptSansCaption(
+                fontSize: 17,
+                color: Colors.black54,
+              )),
+        ],
+      ),
+    ),
+  );
 }
 
+var jsonstartone = [
+  {
+    'origin': "Loading",
+    'dest': 'Loading',
+    'depart': '--:--',
+    'reach': '--:--',
+    'busname': 'Loading...'
+  }
+];
+var jsonsuggestions = [];
+void myMainInit() {
+  for (i = 0; i < 15; i++) {
+    jsonsuggestions = jsonsuggestions + jsonstartone;
+  }
+}
 
 var mymapstyle = """
 [
@@ -227,4 +286,3 @@ var mymapstyle = """
         ]
     }
 ]""";
-
