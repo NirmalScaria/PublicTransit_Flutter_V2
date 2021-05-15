@@ -39,10 +39,12 @@ Widget slideIt(BuildContext context, int index, animation) {
     position: Tween<Offset>(
       begin: const Offset(1.5, 0),
       end: Offset(0, 0),
-    ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutQuad)),
-    child: SizedBox(
+    ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOutCubic)),
+    child: Container(
       // Actual widget to display
+      constraints: BoxConstraints(maxWidth: 100),
       height: 50.0,
+      width:90,
       child: Row(
         children: [
           Icon(
@@ -52,11 +54,14 @@ Widget slideIt(BuildContext context, int index, animation) {
           SizedBox(
             width: 10,
           ),
-          Text(item.toString(),
-              style: GoogleFonts.ptSansCaption(
-                fontSize: 17,
-                color: Colors.black54,
-              )),
+          Container(
+            width: 250,
+            child: Text(item.toString(),
+                style: GoogleFonts.ptSansCaption(
+                  fontSize: 17,
+                  color: Colors.black54,
+                )),
+          ),
         ],
       ),
     ),

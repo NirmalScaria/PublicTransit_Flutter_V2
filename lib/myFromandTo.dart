@@ -45,43 +45,47 @@ class _MyFromBoxState extends State<myFromBox> {
   }
 
   void openfrombox() async {
-    if(isfromfocused==0){
-    setState(() {
-
-      isfromfocused = 1;
-      isfromfocused1 = 1;
-    });
-    for (int i = 0; i < jsonClosests.length-1; i++) {
+    if (isfromfocused == 0) {
+      items = [];
+      counter = 0;
       setState(() {
-        listKey.currentState?.insertItem(items.length,
-            duration: const Duration(milliseconds: 600));
-        items = []
-          ..add(counter++)
-          ..addAll(items);
+        isfromfocused = 1;
+        isfromfocused1 = 1;
       });
-      await Future.delayed(Duration(milliseconds: i<10? i*40 : 20));
-    }
+      for (int i = 0; i < jsonClosests.length; i++) {
+        if (isfromfocused == 1) {
+        setState(() {
+          listKey.currentState?.insertItem(items.length,
+              duration: const Duration(milliseconds: 1200));
+          items = []
+            ..add(counter++)
+            ..addAll(items);
+        });
+        await Future.delayed(Duration(milliseconds: i < 6 ? i * 40 : 20));
+        }
+      }
     }
   }
 
   void closefromobox() async {
-    if(isfromfocused==1){
-    setState(() {
-      isfromfocused1 = 0;
-      isfromfocused = 0;
-    });
-    while(items.length>-1){
-    if (items.length <= 1) return;
-    listKey.currentState?.removeItem(
-        items.length-1, (_, animation) => slideIt(context, 0, animation),
-        duration: const Duration(milliseconds: 1));
-    setState(() {
-      items.removeAt(0);
-    });
+    if (isfromfocused == 1) {
+      setState(() {
+        isfromfocused1 = 0;
+        isfromfocused = 0;
+      });
+      while (items.length > -1) {
+        if (items.length < 1) return;
+        listKey.currentState?.removeItem(
+            items.length - 1, (_, animation) => slideIt(context, 0, animation),
+            duration: const Duration(milliseconds: 1));
+        setState(() {
+          items.removeAt(0);
+        });
+      }
+      items = [];
+      counter = 0;
     }
-    items=[];
-    counter=0;
-  }}
+  }
 
   void dispose() {
     BackButtonInterceptor.remove(myInterceptor);
@@ -95,10 +99,11 @@ class _MyFromBoxState extends State<myFromBox> {
 
   Future<String> setFromBoxLocation(double lat, double lng) async {
     closests[0] = " (LOADING)";
-    var url = Uri.parse("http://65.1.230.169/api/findclosestjson.php");
+    var url = Uri.parse(
+        "http://ec2-35-180-190-15.eu-west-3.compute.amazonaws.com/api/findclosestjson.php");
     var response = await http
         .post(url, body: {"gx": lat.toString(), "gy": lng.toString()});
-    
+
     setState(() {
       jsonClosests = jsonDecode(response.body);
       fromname = "" + jsonClosests[0]["stopname"];
@@ -111,9 +116,77 @@ class _MyFromBoxState extends State<myFromBox> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(20, 60, 20, 0),
-      child: Column(
+      child: Stack(
         children: [
-          AnimatedContainer(
+          
+          FromSuggestionsBox(),
+          /* From OLD
+          Container(
+            decoration: BoxDecoration(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black38,
+                  blurRadius: 17,
+                  offset: const Offset(0, 0),
+                ),
+              ],
+            ),
+            child: TextField(
+              textCapitalization: TextCapitalization.characters,
+              decoration: InputDecoration(
+                  prefixIcon: const Icon(
+                    Icons.location_searching_rounded,
+                  ),
+                  fillColor: Colors.white,
+                  filled: true,
+                  border: InputBorder.none,
+                  hintText: 'FROM$fromname'),
+            ),
+          ),
+          */
+          if (isfromfocused1 == 0)
+            Container(
+              alignment: Alignment(0,-1),
+              padding:EdgeInsets.only(top:100),
+              child: DecoratedIcon(
+                Icons.more_vert,
+                color: Colors.white,
+                size: 80,
+                shadows: [
+                  BoxShadow(
+                    blurRadius: 12.0,
+                    color: Colors.black54,
+                  ),
+                ],
+              ),
+            ),
+          if (isfromfocused1 == 0)
+            Container(
+              margin: EdgeInsets.fromLTRB(10, 190, 10, 0),
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black38,
+                    blurRadius: 17,
+                    offset: const Offset(0, 0),
+                  ),
+                ],
+              ),
+              child: TextField(
+                textCapitalization: TextCapitalization.characters,
+                decoration: InputDecoration(
+                    prefixIcon: const Icon(
+                      Icons.location_on_rounded,
+                      color: Colors.black87,
+                    ),
+                    fillColor: Colors.white,
+                    filled: true,
+                    border: InputBorder.none,
+                    hintText: '$toname',
+                    hintStyle: TextStyle(color: Colors.black87)),
+              ),
+            ),
+            AnimatedContainer(
               curve: Curves.fastOutSlowIn,
               duration: Duration(milliseconds: 500),
               margin: isfromfocused == 1
@@ -140,6 +213,7 @@ class _MyFromBoxState extends State<myFromBox> {
                 children: [
                   GestureDetector(
                     onTap: () {
+                      developer.log("Opening");
                       openfrombox();
                     },
                     child: AnimatedContainer(
@@ -191,69 +265,6 @@ class _MyFromBoxState extends State<myFromBox> {
                   )
                 ],
               )),
-          FromSuggestionsBox(),
-          /* From OLD
-          Container(
-            decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black38,
-                  blurRadius: 17,
-                  offset: const Offset(0, 0),
-                ),
-              ],
-            ),
-            child: TextField(
-              textCapitalization: TextCapitalization.characters,
-              decoration: InputDecoration(
-                  prefixIcon: const Icon(
-                    Icons.location_searching_rounded,
-                  ),
-                  fillColor: Colors.white,
-                  filled: true,
-                  border: InputBorder.none,
-                  hintText: 'FROM$fromname'),
-            ),
-          ),
-          */
-          if (isfromfocused1 == 0)
-            DecoratedIcon(
-              Icons.more_vert,
-              color: Colors.white,
-              size: 80,
-              shadows: [
-                BoxShadow(
-                  blurRadius: 12.0,
-                  color: Colors.black54,
-                ),
-              ],
-            ),
-          if (isfromfocused1 == 0)
-            Container(
-              margin: EdgeInsets.only(top: 0),
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black38,
-                    blurRadius: 17,
-                    offset: const Offset(0, 0),
-                  ),
-                ],
-              ),
-              child: TextField(
-                textCapitalization: TextCapitalization.characters,
-                decoration: InputDecoration(
-                    prefixIcon: const Icon(
-                      Icons.location_on_rounded,
-                      color: Colors.black87,
-                    ),
-                    fillColor: Colors.white,
-                    filled: true,
-                    border: InputBorder.none,
-                    hintText: '$toname',
-                    hintStyle: TextStyle(color: Colors.black87)),
-              ),
-            ),
         ],
       ),
     );
