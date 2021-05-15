@@ -56,7 +56,7 @@ class _MyFromBoxState extends State<myFromBox> {
         if (isfromfocused == 1) {
         setState(() {
           listKey.currentState?.insertItem(items.length,
-              duration: const Duration(milliseconds: 1200));
+              duration: const Duration(milliseconds: 800));
           items = []
             ..add(counter++)
             ..addAll(items);

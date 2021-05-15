@@ -14,20 +14,7 @@ var isfromfocused = 0;
 var isfromfocused1 = 0;
 var jsonClosests = [];
 int i = 0;
-var itemstring = [
-  "ertyr",
-  "otakdjf",
-  "djfk",
-  "ertyr",
-  "otakdjf",
-  "djfk",
-  "ertyr",
-  "otakdjf",
-  "djfk",
-  "ertyr",
-  "otakdjf",
-  "djfk"
-];
+
 
 final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
 int counter = 0;
@@ -37,13 +24,14 @@ Widget slideIt(BuildContext context, int index, animation) {
   var item = jsonClosests[index]['stopname'];
   return SlideTransition(
     position: Tween<Offset>(
-      begin: const Offset(1.5, 0),
+      begin: const Offset(1, 0),
       end: Offset(0, 0),
-    ).animate(CurvedAnimation(parent: animation, curve: Curves.easeInOutCubic)),
+    ).animate(CurvedAnimation(parent: animation, curve: Curves.fastOutSlowIn)),
     child: Container(
       // Actual widget to display
-      constraints: BoxConstraints(maxWidth: 100),
-      height: 50.0,
+      constraints: BoxConstraints(maxWidth: 500),
+      //height: 50.0,
+      padding:EdgeInsets.only(top:10, bottom:9),
       width:90,
       child: Row(
         children: [
@@ -55,7 +43,7 @@ Widget slideIt(BuildContext context, int index, animation) {
             width: 10,
           ),
           Container(
-            width: 250,
+            width: 260,
             child: Text(item.toString(),
                 style: GoogleFonts.ptSansCaption(
                   fontSize: 17,

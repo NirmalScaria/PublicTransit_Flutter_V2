@@ -44,7 +44,7 @@ class _FromSuggestionsBoxState extends State<FromSuggestionsBox> {
         ),
       ),
       Container(
-        height: MediaQuery.of(context).size.height - 280,
+        height:isfromfocused == 0 ? 0 : MediaQuery.of(context).size.height - 280,
         margin:EdgeInsets.only(top: 80),
         padding: const EdgeInsets.all(25.0),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
