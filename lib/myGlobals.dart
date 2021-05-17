@@ -46,6 +46,7 @@ Widget slideIt(BuildContext context, int index, animation) {
                   FocusScope.of(context).unfocus();
                   developer.log("SELECTED" + "$itemid");
                   myFromController.text = "$item";
+                  fromtyped="$item";
                 },
                 child: Ink(
                   color: Colors.transparent,

@@ -28,7 +28,7 @@ class myFromBox extends StatefulWidget {
 class _MyFromBoxState extends State<myFromBox> {
   var location = new Location();
   var resptext = "0";
-
+var latestrequest=1;
   @override
 
   //Init state of the form boxes execute a get location command.
@@ -45,13 +45,19 @@ class _MyFromBoxState extends State<myFromBox> {
   }
 
   void openfrombox() async {
+    
     if (isfromfocused == 0) {
+      
       items = [];
       counter = 0;
       setState(() {
         isfromfocused = 1;
         isfromfocused1 = 1;
       });
+      if(myFromController.text.length>0){
+        onFromChanged(myFromController.text);
+      }
+      else{
       for (int i = 0; i < jsonClosests.length; i++) {
         if (isfromfocused == 1) {
           setState(() {
@@ -64,7 +70,9 @@ class _MyFromBoxState extends State<myFromBox> {
           await Future.delayed(Duration(milliseconds: i < 6 ? i * 40 : 20));
         }
       }
+      }
     }
+    
   }
 
   void onFromChanged(String xx) async {
@@ -72,8 +80,6 @@ class _MyFromBoxState extends State<myFromBox> {
       xx = "0";
     }
 
-    developer.log(xx);
-    developer.log(lenofsuggestions.toString());
 
     closests[0] = " (LOADING)";
     var url = Uri.parse(
@@ -97,16 +103,12 @@ class _MyFromBoxState extends State<myFromBox> {
       fromname = "" + jsonClosests[0]["stopname"];
       fromval = jsonClosests[0]["stopid"];
       lenofsuggestions = jsonClosests.length;
-      developer.log(lenofsuggestions.toString());
     });
+
     setState(() {
-      fromtyped = xx;
+      fromtyped = xx == "0" ? "" : xx;
     });
-    setState(() {
-      developer.log(response.body);
-      //fromname = "" + jsonClosests[0]["stopname"];
-      //fromval = jsonClosests[0]["stopid"];
-    });
+
   }
 
   void closefrombox() async {
@@ -254,7 +256,7 @@ class _MyFromBoxState extends State<myFromBox> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      developer.log("Opening");
+                    
                       openfrombox();
                     },
                     child: AnimatedContainer(
@@ -280,6 +282,7 @@ class _MyFromBoxState extends State<myFromBox> {
                                 )),
                             Expanded(
                               child: TextField(
+                                textInputAction: TextInputAction.next,
                                 onChanged: (String xx) {
                                   onFromChanged(xx);
                                 },
