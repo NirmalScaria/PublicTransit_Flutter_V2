@@ -8,52 +8,93 @@ import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:google_fonts/google_fonts.dart';
+import 'myFromandTo.dart';
 
+var lenofsuggestions = 20;
 var location = new Location();
+var presentlat;
+var presentlong;
 var isfromfocused = 0;
 var isfromfocused1 = 0;
 var jsonClosests = [];
+var fromtyped="";
 int i = 0;
-
-
+var myFromController = TextEditingController();
 final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
 int counter = 0;
 List items = [];
 
 Widget slideIt(BuildContext context, int index, animation) {
-  var item = jsonClosests[index]['stopname'];
+  var item = index < jsonClosests.length
+      ? jsonClosests[index]['stopname']
+      : "NO RESULT FOUND";
+  var itemid =
+      index < jsonClosests.length ? jsonClosests[index]['stopid'] : "0";
   return SlideTransition(
-    position: Tween<Offset>(
-      begin: const Offset(1, 0),
-      end: Offset(0, 0),
-    ).animate(CurvedAnimation(parent: animation, curve: Curves.fastOutSlowIn)),
-    child: Container(
-      // Actual widget to display
-      constraints: BoxConstraints(maxWidth: 500),
-      //height: 50.0,
-      padding:EdgeInsets.only(top:10, bottom:9),
-      width:90,
-      child: Row(
-        children: [
-          Icon(
-            Icons.location_on_outlined,
-            color: Colors.black87,
-          ),
-          SizedBox(
-            width: 10,
-          ),
-          Container(
-            width: 260,
-            child: Text(item.toString(),
-                style: GoogleFonts.ptSansCaption(
-                  fontSize: 17,
-                  color: Colors.black54,
-                )),
-          ),
-        ],
-      ),
-    ),
-  );
+      position: Tween<Offset>(
+        begin: const Offset(1, 0),
+        end: Offset(0, 0),
+      ).animate(
+          CurvedAnimation(parent: animation, curve: Curves.fastOutSlowIn)),
+      child: index < lenofsuggestions
+          ? Material(
+              color: Colors.white.withOpacity(0.0),
+              child: InkWell(
+                onTap: () {
+                  fromBoxState.closefrombox();
+
+                  FocusScope.of(context).unfocus();
+                  developer.log("SELECTED" + "$itemid");
+                  myFromController.text = "$item";
+                },
+                child: Ink(
+                  color: Colors.transparent,
+                  // Actual widget to display
+                  //constraints: BoxConstraints(maxWidth: 500),
+                  //height: 50.0,
+                  padding: EdgeInsets.only(top: 10, bottom: 9),
+                  width: 90,
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.location_on_outlined,
+                        color: Colors.black87,
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Container(
+                        //color:Colors.red,
+                        width: 260,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(item.toString().substring(0,fromtyped.length),
+                                style: GoogleFonts.ptSansCaption(
+                                  fontSize: 17,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w700
+                                )),
+                                Container(
+                                  padding:EdgeInsets.only(right:10),
+                                  constraints: BoxConstraints(maxWidth: 180),
+                                  //color:Colors.green,
+                                  child: Text(item.toString().substring(fromtyped.length),
+                                  style: GoogleFonts.ptSansCaption(
+                                    fontSize: 17,
+                                    color: Colors.black54,
+                                  )
+                                  ),
+                                ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            )
+          : SizedBox(height: 5));
 }
 
 var jsonstartone = [

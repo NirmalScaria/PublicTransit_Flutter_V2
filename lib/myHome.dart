@@ -40,6 +40,8 @@ class _MyBackgroundMapState extends State<MyBackgroundMap> {
     controller.setMapStyle(mymapstyle);
 
     location.getLocation().then((LocationData locationData) {
+      presentlat=locationData.latitude;
+      presentlong=locationData.longitude;
       LatLng latLng = new LatLng(
           locationData.latitude , locationData.longitude );
       CameraUpdate cameraUpdate = CameraUpdate.newLatLngZoom(latLng, 13);

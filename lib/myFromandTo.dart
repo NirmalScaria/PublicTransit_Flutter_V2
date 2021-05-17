@@ -54,20 +54,62 @@ class _MyFromBoxState extends State<myFromBox> {
       });
       for (int i = 0; i < jsonClosests.length; i++) {
         if (isfromfocused == 1) {
-        setState(() {
-          listKey.currentState?.insertItem(items.length,
-              duration: const Duration(milliseconds: 800));
-          items = []
-            ..add(counter++)
-            ..addAll(items);
-        });
-        await Future.delayed(Duration(milliseconds: i < 6 ? i * 40 : 20));
+          setState(() {
+            listKey.currentState?.insertItem(items.length,
+                duration: const Duration(milliseconds: 800));
+            items = []
+              ..add(counter++)
+              ..addAll(items);
+          });
+          await Future.delayed(Duration(milliseconds: i < 6 ? i * 40 : 20));
         }
       }
     }
   }
 
-  void closefromobox() async {
+  void onFromChanged(String xx) async {
+    if (xx == "") {
+      xx = "0";
+    }
+
+    developer.log(xx);
+    developer.log(lenofsuggestions.toString());
+
+    closests[0] = " (LOADING)";
+    var url = Uri.parse(
+        "http://ec2-35-180-190-15.eu-west-3.compute.amazonaws.com/api/findclosestauto.php");
+    var response = await http.post(url, body: {
+      "gx": presentlat.toString(),
+      "gy": presentlong.toString(),
+      "typed": xx
+    });
+
+    setState(() {
+      listKey.currentState?.insertItem(items.length,
+          duration: const Duration(milliseconds: 800));
+      items = []
+        ..add(counter++)
+        ..addAll(items);
+    });
+
+    setState(() {
+      jsonClosests = jsonDecode(response.body);
+      fromname = "" + jsonClosests[0]["stopname"];
+      fromval = jsonClosests[0]["stopid"];
+      lenofsuggestions = jsonClosests.length;
+      developer.log(lenofsuggestions.toString());
+    });
+    setState(() {
+      fromtyped = xx;
+    });
+    setState(() {
+      developer.log(response.body);
+      //fromname = "" + jsonClosests[0]["stopname"];
+      //fromval = jsonClosests[0]["stopid"];
+    });
+  }
+
+  void closefrombox() async {
     if (isfromfocused == 1) {
       setState(() {
         isfromfocused1 = 0;
@@ -93,7 +135,7 @@ class _MyFromBoxState extends State<myFromBox> {
   }
 
   bool myInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
-    closefromobox();
+    closefrombox();
     return true;
   }
 
@@ -118,7 +160,6 @@ class _MyFromBoxState extends State<myFromBox> {
       padding: EdgeInsets.fromLTRB(20, 60, 20, 0),
       child: Stack(
         children: [
-          
           FromSuggestionsBox(),
           /* From OLD
           Container(
@@ -146,8 +187,8 @@ class _MyFromBoxState extends State<myFromBox> {
           */
           if (isfromfocused1 == 0)
             Container(
-              alignment: Alignment(0,-1),
-              padding:EdgeInsets.only(top:100),
+              alignment: Alignment(0, -1),
+              padding: EdgeInsets.only(top: 100),
               child: DecoratedIcon(
                 Icons.more_vert,
                 color: Colors.white,
@@ -186,7 +227,7 @@ class _MyFromBoxState extends State<myFromBox> {
                     hintStyle: TextStyle(color: Colors.black87)),
               ),
             ),
-            AnimatedContainer(
+          AnimatedContainer(
               curve: Curves.fastOutSlowIn,
               duration: Duration(milliseconds: 500),
               margin: isfromfocused == 1
@@ -239,6 +280,10 @@ class _MyFromBoxState extends State<myFromBox> {
                                 )),
                             Expanded(
                               child: TextField(
+                                onChanged: (String xx) {
+                                  onFromChanged(xx);
+                                },
+                                controller: myFromController,
                                 textCapitalization:
                                     TextCapitalization.characters,
                                 decoration: InputDecoration(
@@ -252,7 +297,7 @@ class _MyFromBoxState extends State<myFromBox> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      closefromobox();
+                      closefrombox();
                       FocusScope.of(context).unfocus();
                     },
                     child: Container(
