@@ -17,7 +17,7 @@ var presentlong;
 var isfromfocused = 0;
 var isfromfocused1 = 0;
 var jsonClosests = [];
-var fromtyped="";
+var fromtyped = "";
 int i = 0;
 var myFromController = TextEditingController();
 final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
@@ -40,66 +40,66 @@ Widget slideIt(BuildContext context, int index, animation) {
           ? Material(
               color: Colors.white.withOpacity(0.0),
               child: InkWell(
-                onTap: () {
-                  fromBoxState.movetoto();
+                  onTap: () {
+                    fromBoxState.movetoto();
 
-                  FocusScope.of(context).unfocus();
-                  //fromtyped = "$item";
-                  developer.log("SELECTED" + "$itemid");
-                  
-                  myFromController.text = "$item";
-                  /*
+                    FocusScope.of(context).unfocus();
+                    //fromtyped = "$item";
+                    developer.log("SELECTED" + "$itemid");
+
+                    myFromController.text = "$item";
+                    /*
                   fromtyped="$item";
                   */
-                },
-                child: Ink(
-                  color: Colors.transparent,
-                  // Actual widget to display
-                  //constraints: BoxConstraints(maxWidth: 500),
-                  //height: 50.0,
-                  padding: EdgeInsets.only(top: 10, bottom: 9),
-                  width: 90,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.location_on_outlined,
-                        color: Colors.black87,
-                      ),
-                      SizedBox(
-                        width: 10,
-                      ),
-                      Container(
-                        //color:Colors.red,
-                        width: 260,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if(item!=null)
-                            Text(item.toString().substring(0,fromtyped.length),
-                                style: GoogleFonts.ptSansCaption(
-                                  fontSize: 17,
-                                  color: Colors.black87,
-                                  fontWeight: FontWeight.w700
-                                )),
-                                if(item!=null)
-                                Container(
-                                  padding:EdgeInsets.only(right:10),
-                                  constraints: BoxConstraints(maxWidth: 180),
-                                  //color:Colors.green,
-                                  child: Text(item.toString().substring(fromtyped.length),
-                                  style: GoogleFonts.ptSansCaption(
-                                    fontSize: 17,
-                                    color: Colors.black54,
-                                  )
-                                  ),
-                                ),
-                          ],
+                  },
+                  child: Ink(
+                    color: Colors.transparent,
+                    // Actual widget to display
+                    //constraints: BoxConstraints(maxWidth: 500),
+                    //height: 50.0,
+                    padding: EdgeInsets.only(top: 10, bottom: 9),
+                    width: 90,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.location_on_outlined,
+                          color: Colors.black87,
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Container(
+                          //color:Colors.red,
+                          width: 260,
+
+                          child: RichText(
+                              text: TextSpan(
+                                  text:
+                                      item.toString().length > fromtyped.length
+                                          ? item
+                                              .toString()
+                                              .substring(0, fromtyped.length)
+                                          : item.toString(),
+                                  style: GoogleFonts.ptSansCaption(
+                                      fontSize: 17,
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w700),
+                                  children: [
+                                if (item.toString().length > fromtyped.length)
+                                  TextSpan(
+                                      text: item
+                                          .toString()
+                                          .substring(fromtyped.length),
+                                      style: GoogleFonts.ptSansCaption(
+                                        fontSize: 17,
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.normal,
+                                      )),
+                              ])),
+                        ),
+                      ],
+                    ),
+                  )),
             )
           : SizedBox(height: 5));
 }
