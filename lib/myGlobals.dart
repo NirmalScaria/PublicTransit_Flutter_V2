@@ -41,12 +41,16 @@ Widget slideIt(BuildContext context, int index, animation) {
               color: Colors.white.withOpacity(0.0),
               child: InkWell(
                 onTap: () {
-                  fromBoxState.closefrombox();
+                  fromBoxState.movetoto();
 
                   FocusScope.of(context).unfocus();
+                  //fromtyped = "$item";
                   developer.log("SELECTED" + "$itemid");
+                  
                   myFromController.text = "$item";
+                  /*
                   fromtyped="$item";
+                  */
                 },
                 child: Ink(
                   color: Colors.transparent,
@@ -70,12 +74,14 @@ Widget slideIt(BuildContext context, int index, animation) {
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            if(item!=null)
                             Text(item.toString().substring(0,fromtyped.length),
                                 style: GoogleFonts.ptSansCaption(
                                   fontSize: 17,
                                   color: Colors.black87,
                                   fontWeight: FontWeight.w700
                                 )),
+                                if(item!=null)
                                 Container(
                                   padding:EdgeInsets.only(right:10),
                                   constraints: BoxConstraints(maxWidth: 180),

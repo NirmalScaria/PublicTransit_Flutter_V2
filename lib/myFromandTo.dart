@@ -55,7 +55,7 @@ var latestrequest=1;
         isfromfocused1 = 1;
       });
       if(myFromController.text.length>0){
-        onFromChanged(myFromController.text);
+        onFromChanged(fromtyped);
       }
       else{
       for (int i = 0; i < jsonClosests.length; i++) {
@@ -70,7 +70,7 @@ var latestrequest=1;
           await Future.delayed(Duration(milliseconds: i < 6 ? i * 40 : 20));
         }
       }
-      }
+    }
     }
     
   }
@@ -81,7 +81,6 @@ var latestrequest=1;
     }
 
 
-    closests[0] = " (LOADING)";
     var url = Uri.parse(
         "http://ec2-35-180-190-15.eu-west-3.compute.amazonaws.com/api/findclosestauto.php");
     var response = await http.post(url, body: {
@@ -128,6 +127,19 @@ var latestrequest=1;
       }
       items = [];
       counter = 0;
+    }
+  }
+
+  void movetoto() {
+    
+    if (isfromfocused == 1) {
+      setState(() {
+        isfromfocused1 = 0;
+        isfromfocused = 0;
+        
+      });
+      
+      
     }
   }
 
