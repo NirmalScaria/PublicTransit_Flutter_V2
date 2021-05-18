@@ -16,11 +16,17 @@ var presentlat;
 var presentlong;
 var isfromfocused = 0;
 var isfromfocused1 = 0;
+var istofocused=0;
+var istofocused1=0;
 var jsonClosests = [];
 var fromtyped = "";
+var totyped="";
 int i = 0;
 var myFromController = TextEditingController();
+var myToController = TextEditingController();
 final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
+
+final GlobalKey<AnimatedListState> listKeyTo = GlobalKey<AnimatedListState>();
 int counter = 0;
 List items = [];
 
@@ -103,6 +109,91 @@ Widget slideIt(BuildContext context, int index, animation) {
             )
           : SizedBox(height: 5));
 }
+
+
+
+
+Widget slideItTo(BuildContext context, int index, animation) {
+  var item = index < jsonClosests.length
+      ? jsonClosests[index]['stopname']
+      : "NO RESULT FOUND";
+  var itemid =
+      index < jsonClosests.length ? jsonClosests[index]['stopid'] : "0";
+  return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(1, 0),
+        end: Offset(0, 0),
+      ).animate(
+          CurvedAnimation(parent: animation, curve: Curves.fastOutSlowIn)),
+      child: index < lenofsuggestions
+          ? Material(
+              color: Colors.white.withOpacity(0.0),
+              child: InkWell(
+                  onTap: () {
+                    fromBoxState.toselected();
+
+                    FocusScope.of(context).unfocus();
+                    //fromtyped = "$item";
+                    developer.log("SELECTED TO" + "$itemid");
+
+                    myToController.text = "$item";
+                    /*
+                  fromtyped="$item";
+                  */
+                  },
+                  child: Ink(
+                    color: Colors.transparent,
+                    // Actual widget to display
+                    //constraints: BoxConstraints(maxWidth: 500),
+                    //height: 50.0,
+                    padding: EdgeInsets.only(top: 10, bottom: 9),
+                    width: 90,
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.location_on_outlined,
+                          color: Colors.black87,
+                        ),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Container(
+                          //color:Colors.red,
+                          width: 260,
+
+                          child: RichText(
+                              text: TextSpan(
+                                  text:
+                                      item.toString().length > totyped.length
+                                          ? item
+                                              .toString()
+                                              .substring(0, totyped.length)
+                                          : item.toString(),
+                                  style: GoogleFonts.ptSansCaption(
+                                      fontSize: 17,
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w700),
+                                  children: [
+                                if (item.toString().length > totyped.length)
+                                  TextSpan(
+                                      text: item
+                                          .toString()
+                                          .substring(totyped.length),
+                                      style: GoogleFonts.ptSansCaption(
+                                        fontSize: 17,
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.normal,
+                                      )),
+                              ])),
+                        ),
+                      ],
+                    ),
+                  )),
+            )
+          : SizedBox(height: 5));
+}
+
+
 
 var jsonstartone = [
   {
