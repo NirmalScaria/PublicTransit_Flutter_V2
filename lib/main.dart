@@ -8,7 +8,6 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'myGlobals.dart';
 import 'package:http/http.dart' as http;
 import 'dart:developer' as developer;
-//STARTING AUTOSUGESTIONS PROJECT
 void main() {
   runApp(MyApp());
 }
@@ -44,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
         width: MediaQuery.of(context).size.width,
         child: Stack(
           children: [
-            MyBackgroundMap(),
+            myBackgroundMap(),
             MyCard(),
             myFromBox(),
             

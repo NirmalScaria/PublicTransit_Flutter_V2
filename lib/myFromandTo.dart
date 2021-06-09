@@ -77,7 +77,7 @@ class _MyFromBoxState extends State<myFromBox> {
     }
 
     var url = Uri.parse(
-        "http://ec2-35-180-190-15.eu-west-3.compute.amazonaws.com/api/findclosestauto.php");
+        "https://nirmalpoonattu.tk/api/findclosestauto.php");
     var response = await http.post(url, body: {
       "gx": presentlat.toString(),
       "gy": presentlong.toString(),
@@ -154,9 +154,8 @@ class _MyFromBoxState extends State<myFromBox> {
       if (myToController.text.length > 0) {
         //onToChanged(totyped);
       } else {
-        for (int i = 0; i < jsonClosests.length; i++) {
+        for (int i = 0; i < jsonClosestsTo.length; i++) {
           if (istofocused == 1) {
-            developer.log("DOING");
             setState(() {
               listKeyTo.currentState?.insertItem(items.length,
                   duration: const Duration(milliseconds: 800));
@@ -178,7 +177,7 @@ void onToChanged(String xx) async {
     }
 
     var url = Uri.parse(
-        "http://ec2-35-180-190-15.eu-west-3.compute.amazonaws.com/api/findclosestauto.php");
+        "https://nirmalpoonattu.tk/api/findclosestauto.php");
     var response = await http.post(url, body: {
       "gx": presentlat.toString(),
       "gy": presentlong.toString(),
@@ -194,10 +193,10 @@ void onToChanged(String xx) async {
     });
 
     setState(() {
-      jsonClosests = jsonDecode(response.body);
-      toname = "" + jsonClosests[0]["stopname"];
-      toval = jsonClosests[0]["stopid"];
-      lenofsuggestions = jsonClosests.length;
+      jsonClosestsTo = jsonDecode(response.body);
+      toname = "" + jsonClosestsTo[0]["stopname"];
+      toval = jsonClosestsTo[0]["stopid"];
+      lenofsuggestions = jsonClosestsTo.length;
     });
 
     setState(() {
@@ -214,7 +213,8 @@ void closetobox() async {
       });
       while (items.length > -1) {
         if (items.length < 1) return;
-        listKey.currentState?.removeItem(
+        
+        listKeyTo.currentState?.removeItem(
             items.length - 1, (_, animation) => slideIt(context, 0, animation),
             duration: const Duration(milliseconds: 1));
         setState(() {
@@ -240,12 +240,13 @@ void closetobox() async {
   Future<String> setFromBoxLocation(double lat, double lng) async {
     closests[0] = " (LOADING)";
     var url = Uri.parse(
-        "http://ec2-35-180-190-15.eu-west-3.compute.amazonaws.com/api/findclosestjson.php");
+        "https://nirmalpoonattu.tk/api/findclosestjson.php");
     var response = await http
         .post(url, body: {"gx": lat.toString(), "gy": lng.toString()});
-
+developer.log(response.body);
     setState(() {
       jsonClosests = jsonDecode(response.body);
+      jsonClosestsTo = jsonDecode(response.body);
       fromname = "" + jsonClosests[0]["stopname"];
       fromval = jsonClosests[0]["stopid"];
       toname = "" + jsonClosests[1]["stopname"];

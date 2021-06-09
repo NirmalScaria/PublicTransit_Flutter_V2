@@ -9,7 +9,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:google_fonts/google_fonts.dart';
 import 'myFromandTo.dart';
-
+import 'myHome.dart';
 var lenofsuggestions = 20;
 var location = new Location();
 var presentlat;
@@ -19,8 +19,15 @@ var isfromfocused1 = 0;
 var istofocused=0;
 var istofocused1=0;
 var jsonClosests = [];
+var jsonClosestsTo = [];
 var fromtyped = "";
 var totyped="";
+double fromlat=0;
+double fromlng=0;
+double tolat=0;
+double tolng=0;
+var fromid=0;
+var toid=0;
 int i = 0;
 var myFromController = TextEditingController();
 var myToController = TextEditingController();
@@ -34,11 +41,9 @@ Widget slideIt(BuildContext context, int index, animation) {
   var item = index < jsonClosests.length
       ? jsonClosests[index]['stopname']
       : "NO RESULT FOUND";
-  var itemid =
-      index < jsonClosests.length ? jsonClosests[index]['stopid'] : "0";
   return SlideTransition(
       position: Tween<Offset>(
-        begin: const Offset(1, 0),
+        begin: const Offset(0.2, 0),
         end: Offset(0, 0),
       ).animate(
           CurvedAnimation(parent: animation, curve: Curves.fastOutSlowIn)),
@@ -51,9 +56,12 @@ Widget slideIt(BuildContext context, int index, animation) {
 
                     FocusScope.of(context).unfocus();
                     //fromtyped = "$item";
-                    developer.log("SELECTED" + "$itemid");
-
+                    fromid=jsonClosests[index]['stopid'];
+                    fromlat=jsonClosests[index]['lat'];
+                    fromlng=jsonClosests[index]['lng'];
+                    
                     myFromController.text = "$item";
+                    backgroundMapState.setFromOnly(fromlat, fromlng);
                     /*
                   fromtyped="$item";
                   */
@@ -114,14 +122,13 @@ Widget slideIt(BuildContext context, int index, animation) {
 
 
 Widget slideItTo(BuildContext context, int index, animation) {
-  var item = index < jsonClosests.length
-      ? jsonClosests[index]['stopname']
+  var item = index < jsonClosestsTo.length
+      ? jsonClosestsTo[index]['stopname']
       : "NO RESULT FOUND";
-  var itemid =
-      index < jsonClosests.length ? jsonClosests[index]['stopid'] : "0";
+  
   return SlideTransition(
       position: Tween<Offset>(
-        begin: const Offset(1, 0),
+        begin: const Offset(0.2, 0),
         end: Offset(0, 0),
       ).animate(
           CurvedAnimation(parent: animation, curve: Curves.fastOutSlowIn)),
@@ -134,7 +141,9 @@ Widget slideItTo(BuildContext context, int index, animation) {
 
                     FocusScope.of(context).unfocus();
                     //fromtyped = "$item";
-                    developer.log("SELECTED TO" + "$itemid");
+                    toid=jsonClosestsTo[index]['stopid'];
+                    tolat=jsonClosestsTo[index]['lat'];
+                    tolng=jsonClosestsTo[index]['lng'];
 
                     myToController.text = "$item";
                     /*
