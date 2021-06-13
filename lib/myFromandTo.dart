@@ -10,11 +10,17 @@ import 'myAutoSuggestions.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'dart:io';
 import 'myToSuggestions.dart';
+import 'dart:async';
+
+import 'package:path/path.dart' as Path;
+import 'package:sqflite/sqflite.dart';
+import 'package:flutter/widgets.dart';
+
 var closests = [" WHERE ?", " TO?"];
 var fromname = " WHERE?";
 int fromval = 0;
 var toname = "WHERE TO?";
-int toval=0;
+int toval = 0;
 late _MyFromBoxState fromBoxState;
 
 class myFromBox extends StatefulWidget {
@@ -42,6 +48,7 @@ class _MyFromBoxState extends State<myFromBox> {
       closests[1] = " TO?";
     });
     location.getLocation().then((LocationData locationData) {});
+    initDatabase(0.0, 0.0);
   }
 
   void openfrombox() async {
@@ -72,17 +79,19 @@ class _MyFromBoxState extends State<myFromBox> {
   }
 
   void onFromChanged(String xx) async {
-    if (xx == "") {
-      xx = "0";
-    }
+    WidgetsFlutterBinding.ensureInitialized();
+    final database = openDatabase(
+      Path.join(await getDatabasesPath(), 'stopsdatabase.db'),
+      version: 1,
+    );
+    final db = await database;
 
-    var url = Uri.parse(
-        "https://nirmalpoonattu.tk/api/findclosestauto.php");
-    var response = await http.post(url, body: {
-      "gx": presentlat.toString(),
-      "gy": presentlong.toString(),
-      "typed": xx
-    });
+    List<Map> result = await db.rawQuery(
+        "select stopid,stopname,placeid, lat, lng from stops ${xx == "" ? "" : "where stopname like '$xx%'"} order by abs(${presentlat.toString()}-lat)+abs(${presentlong.toString()}-lng) asc limit 20");
+
+    //developer.log(result.toString());
+    //developer.log(result.length.toString());
+    //developer.log(xx);
 
     setState(() {
       listKey.currentState?.insertItem(items.length,
@@ -93,7 +102,7 @@ class _MyFromBoxState extends State<myFromBox> {
     });
 
     setState(() {
-      jsonClosests = jsonDecode(response.body);
+      jsonClosests = result;
       fromname = "" + jsonClosests[0]["stopname"];
       fromval = jsonClosests[0]["stopid"];
       lenofsuggestions = jsonClosests.length;
@@ -133,7 +142,7 @@ class _MyFromBoxState extends State<myFromBox> {
     }
   }
 
-    void toselected() {
+  void toselected() {
     if (istofocused == 1) {
       setState(() {
         istofocused1 = 0;
@@ -143,7 +152,6 @@ class _MyFromBoxState extends State<myFromBox> {
   }
 
   void opentobox() async {
-
     if (istofocused == 0) {
       items = [];
       counter = 0;
@@ -171,18 +179,17 @@ class _MyFromBoxState extends State<myFromBox> {
     onToChanged("");
   }
 
-void onToChanged(String xx) async {
-    if (xx == "") {
-      xx = "0";
-    }
+  void onToChanged(String xx) async {
+    WidgetsFlutterBinding.ensureInitialized();
+    final database = openDatabase(
+      Path.join(await getDatabasesPath(), 'stopsdatabase.db'),
+      version: 1,
+    );
+    final db = await database;
 
-    var url = Uri.parse(
-        "https://nirmalpoonattu.tk/api/findclosestauto.php");
-    var response = await http.post(url, body: {
-      "gx": presentlat.toString(),
-      "gy": presentlong.toString(),
-      "typed": xx
-    });
+    List<Map> result = await db.rawQuery(
+        "select stopid,stopname,placeid, lat, lng from stops ${xx == "" ? "" : "where stopname like '$xx%'"} order by abs(${presentlat.toString()}-lat)+abs(${presentlong.toString()}-lng) asc limit 20");
+
 
     setState(() {
       listKeyTo.currentState?.insertItem(items.length,
@@ -193,7 +200,7 @@ void onToChanged(String xx) async {
     });
 
     setState(() {
-      jsonClosestsTo = jsonDecode(response.body);
+      jsonClosestsTo = result;
       toname = "" + jsonClosestsTo[0]["stopname"];
       toval = jsonClosestsTo[0]["stopid"];
       lenofsuggestions = jsonClosestsTo.length;
@@ -204,8 +211,7 @@ void onToChanged(String xx) async {
     });
   }
 
-
-void closetobox() async {
+  void closetobox() async {
     if (istofocused == 1) {
       setState(() {
         istofocused1 = 0;
@@ -213,7 +219,7 @@ void closetobox() async {
       });
       while (items.length > -1) {
         if (items.length < 1) return;
-        
+
         listKeyTo.currentState?.removeItem(
             items.length - 1, (_, animation) => slideIt(context, 0, animation),
             duration: const Duration(milliseconds: 1));
@@ -226,7 +232,6 @@ void closetobox() async {
     }
   }
 
-
   void dispose() {
     BackButtonInterceptor.remove(myInterceptor);
     super.dispose();
@@ -237,7 +242,92 @@ void closetobox() async {
     return true;
   }
 
-  Future<String> setFromBoxLocation(double lat, double lng) async {
+  Future<String> initDatabase(double lat, double lng) async {
+    WidgetsFlutterBinding.ensureInitialized();
+    final database = openDatabase(
+      Path.join(await getDatabasesPath(), 'stopsdatabase.db'),
+      onCreate: (db, version) {
+        return db.execute(
+          """CREATE TABLE stops(
+        stopid INTEGER, 
+        stopname TEXT, 
+        district TEXT,
+        lat DOUBLE,
+        lng DOUBLE,
+        placeid TEXT,
+        state TEXT)
+      """,
+        );
+      },
+      version: 1,
+    );
+
+    Future<void> insertStop(StopObject stop) async {
+      final db = await database;
+      await db.insert(
+        'stops',
+        stop.stopMapped(),
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    }
+
+    //CHECK IF DATABASE IS NOT UPDATED
+    Future<int> checkStopUpdate() async {
+      final db = await database;
+
+      int? count = Sqflite.firstIntValue(
+          await db.rawQuery('SELECT COUNT(*) FROM stops'));
+      //developer.log("TOTAL ROWS:");
+      //developer.log(count.toString());
+      if (count! < 1000) {
+        developer.log("UPDATING DATABASE");
+        //developer.log((1000 - count).toString());
+        //UPDATE DATABASE
+        db.rawQuery('DELETE FROM stops');
+        var url = Uri.parse("https://nirmalpoonattu.tk/api/findallstops.php");
+        var response = await http
+            .post(url, body: {"gx": lat.toString(), "gy": lng.toString()});
+        //developer.log(response.body);
+        var jsondecoded = jsonDecode(response.body);
+        //developer.log(jsondecoded.length.toString());
+        for (i = 0; i < jsondecoded.length; i++) {
+          var myStop = StopObject(
+              lat: jsondecoded[i]['lat'],
+              lng: jsondecoded[i]['lng'],
+              stopname: jsondecoded[i]['stopname'],
+              stopid: jsondecoded[i]['stopid'],
+              state: jsondecoded[i]['state'],
+              district: jsondecoded[i]['district'],
+              placeid: jsondecoded[i]['placeid']);
+          await insertStop(myStop);
+        }
+      } else {
+        //developer.log("DATABASE UP TO DATE");
+      }
+      return (0);
+    }
+
+    checkStopUpdate();
+
+    Future<List<StopObject>> displayStops() async {
+      final db = await database;
+
+      final List<Map<String, dynamic>> maps = await db.query('stops');
+
+      return List.generate(maps.length, (i) {
+        return StopObject(
+            stopid: maps[i]['stopid'],
+            stopname: maps[i]['stopname'],
+            lat: maps[i]['lat'],
+            lng: maps[i]['lng'],
+            district: maps[i]['district'],
+            state: maps[i]['state'],
+            placeid: maps[i]['placeid']);
+      });
+    }
+
+    print(await displayStops());
+/*
     closests[0] = " (LOADING)";
     var url = Uri.parse(
         "https://nirmalpoonattu.tk/api/findclosestjson.php");
@@ -247,6 +337,38 @@ developer.log(response.body);
     setState(() {
       jsonClosests = jsonDecode(response.body);
       jsonClosestsTo = jsonDecode(response.body);
+      fromname = "" + jsonClosests[0]["stopname"];
+      fromval = jsonClosests[0]["stopid"];
+      toname = "" + jsonClosests[1]["stopname"];
+      toval = jsonClosests[1]["stopid"];
+    });
+    return ("done");
+    */
+    return ("DONE");
+  }
+
+//LOAD FUNCTION END
+
+// FROM BOX START
+  Future<String> setFromBoxLocation(double lat, double lng) async {
+    closests[0] = " (LOADING)";
+
+
+
+    WidgetsFlutterBinding.ensureInitialized();
+    final database = openDatabase(
+      Path.join(await getDatabasesPath(), 'stopsdatabase.db'),
+      version: 1,
+    );
+    final db = await database;
+
+    List<Map> result = await db.rawQuery(
+        "select stopid,stopname,placeid, lat, lng from stops order by abs(${presentlat.toString()}-lat)+abs(${presentlong.toString()}-lng) asc limit 20");
+
+
+    setState(() {
+      jsonClosests = result;
+      jsonClosestsTo = result;
       fromname = "" + jsonClosests[0]["stopname"];
       fromval = jsonClosests[0]["stopid"];
       toname = "" + jsonClosests[1]["stopname"];
@@ -288,22 +410,22 @@ developer.log(response.body);
           ),
           */
           if (isfromfocused1 == 0)
-          if (istofocused1==0)
-            Container(
-              alignment: Alignment(0, -1),
-              padding: EdgeInsets.only(top: 100),
-              child: DecoratedIcon(
-                Icons.more_vert,
-                color: Colors.white,
-                size: 80,
-                shadows: [
-                  BoxShadow(
-                    blurRadius: 12.0,
-                    color: Colors.black54,
-                  ),
-                ],
+            if (istofocused1 == 0)
+              Container(
+                alignment: Alignment(0, -1),
+                padding: EdgeInsets.only(top: 100),
+                child: DecoratedIcon(
+                  Icons.more_vert,
+                  color: Colors.white,
+                  size: 80,
+                  shadows: [
+                    BoxShadow(
+                      blurRadius: 12.0,
+                      color: Colors.black54,
+                    ),
+                  ],
+                ),
               ),
-            ),
           if (isfromfocused1 == 0)
             AnimatedContainer(
                 curve: Curves.fastOutSlowIn,
@@ -347,7 +469,7 @@ developer.log(response.body);
                             children: [
                               SizedBox(width: 10),
                               Icon(
-                                Icons.my_location,
+                                Icons.location_on,
                               ),
                               SizedBox(width: 7),
                               Text("TO: ",
@@ -456,7 +578,7 @@ developer.log(response.body);
                               color: isfromfocused == 0
                                   ? Colors.white
                                   : Colors.black12,
-                              borderRadius: BorderRadius.circular(10)),
+                              borderRadius: isfromfocused != 0 ? BorderRadius.circular(10) : BorderRadius.circular(0)),
                           child: Row(
                             children: [
                               SizedBox(width: 10),

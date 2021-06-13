@@ -92,24 +92,26 @@ myMapController.animateCamera(CameraUpdate.newCameraPosition(
       myMapController=controller;
     });
     controller.setMapStyle(mymapstyle);
-    developer.log("TRYING");
+    developer.log("TRYING to get the local geolocation.");
 try{
     location.getLocation().then((LocationData locationData) {
-      developer.log("Got location");
+      developer.log("Got local geolocation");
       presentlat=locationData.latitude;
       presentlong=locationData.longitude;
       LatLng latLng = new LatLng(
           locationData.latitude , locationData.longitude );
       CameraUpdate cameraUpdate = CameraUpdate.newLatLngZoom(latLng, 13);
       controller.animateCamera(cameraUpdate);
+      //Calling function to set the from box location
       fromBoxState.setFromBoxLocation(
           locationData.latitude , locationData.longitude );
+        //Calling function to load cards.
       cardState.loadCardsData(
           locationData.latitude , locationData.longitude );
     });
 }
 catch(e){
-  developer.log("ERROR");
+  developer.log("ERROR in getting the local geolocation");
   developer.log(e.toString());
 }
   }

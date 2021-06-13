@@ -37,6 +37,40 @@ final GlobalKey<AnimatedListState> listKeyTo = GlobalKey<AnimatedListState>();
 int counter = 0;
 List items = [];
 
+class StopObject{
+  final double lat;
+  final double lng;
+  final String stopname;
+  final int stopid;
+  final String placeid;
+  final String district;
+  final String state ;
+  StopObject({
+    required this.lat,
+    required this.lng,
+    required this.stopname,
+    required this.stopid,
+    required this.placeid,
+    required this.district,
+    required this.state,
+  });
+  Map<String, dynamic> stopMapped() {
+    return {
+      'stopid': stopid,
+      'stopname': stopname,
+      'lat':lat,
+      'lng':lng,
+      'placeid':placeid,
+      'district':district,
+      'state':state,
+    };
+  }
+  @override
+  String toString() {
+    return 'Stops{stopid: $stopid, stopname: $stopname, lat: $lat, lng: $lng, placeid: $placeid, district: $district, state: $state}';
+  }
+}
+
 Widget slideIt(BuildContext context, int index, animation) {
   var item = index < jsonClosests.length
       ? jsonClosests[index]['stopname']
