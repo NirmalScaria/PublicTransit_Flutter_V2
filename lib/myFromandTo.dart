@@ -23,6 +23,7 @@ var toname = "WHERE TO?";
 int toval = 0;
 late _MyFromBoxState fromBoxState;
 
+
 class myFromBox extends StatefulWidget {
   @override
   _MyFromBoxState createState() {
@@ -59,21 +60,33 @@ class _MyFromBoxState extends State<myFromBox> {
         isfromfocused = 1;
         isfromfocused1 = 1;
       });
-      if (myFromController.text.length > 0) {
-        onFromChanged(fromtyped);
-      } else {
-        for (int i = 0; i < jsonClosests.length; i++) {
-          if (isfromfocused == 1) {
-            setState(() {
-              listKey.currentState?.insertItem(items.length,
-                  duration: const Duration(milliseconds: 800));
-              items = []
-                ..add(counter++)
-                ..addAll(items);
-            });
-            await Future.delayed(Duration(milliseconds: i < 6 ? i * 40 : 20));
-          }
-        }
+      WidgetsFlutterBinding.ensureInitialized();
+      final database = openDatabase(
+        Path.join(await getDatabasesPath(), 'stopsdatabase.db'),
+        version: 1,
+      );
+      final db = await database;
+
+      List<Map> result = await db.rawQuery(
+          "select stopid,stopname,placeid, lat, lng, state from stops order by abs(${presentlat.toString()}-lat)+abs(${presentlong.toString()}-lng) asc limit 10");
+
+      fromolist = [];
+      newfrom = [];
+      for (i = 0; i < result.length; i++) {
+        setState(() {
+          fromolist.add(new StopObject(
+              lat: result[i]["lat"],
+              lng: result[i]["lng"],
+              stopname: result[i]["stopname"],
+              stopid: result[i]["stopid"],
+              placeid: result[i]["placeid"],
+              district: result[i]["district"],
+              state: result[i]["state"]));
+              
+          newfrom.add(fromolist[i].stopid != 0
+              ? Text(fromolist[i].stopname)
+              : SizedBox());
+        });
       }
     }
   }
@@ -87,26 +100,45 @@ class _MyFromBoxState extends State<myFromBox> {
     final db = await database;
 
     List<Map> result = await db.rawQuery(
-        "select stopid,stopname,placeid, lat, lng from stops ${xx == "" ? "" : "where stopname like '$xx%'"} order by abs(${presentlat.toString()}-lat)+abs(${presentlong.toString()}-lng) asc limit 20");
+        "select stopid,stopname,placeid, lat, lng, state from stops ${xx == "" ? "" : "where stopname like '$xx%'"} order by abs(${presentlat.toString()}-lat)+abs(${presentlong.toString()}-lng) asc limit 10");
 
+    fromolist = [];
+    newfrom = [];
+    for (i = 0; i < result.length; i++) {
+      setState(() {
+        fromolist.add(new StopObject(
+            lat: result[i]["lat"],
+            lng: result[i]["lng"],
+            stopname: result[i]["stopname"],
+            stopid: result[i]["stopid"],
+            placeid: result[i]["placeid"],
+            district: result[i]["district"],
+            state: result[i]["state"]));
+
+        
+      });
+    }
+    newfrom=[];
+
+    //developer.log(fromolist.toString());
+for (i = 0; i < result.length; i++) {
+  developer.log(fromolist[i].stopname);
+  setState(() {
+    newfrom.add(fromolist[i].stopid != 0
+            ? Text(fromolist[i].stopname)
+            : SizedBox());
+  });
+ 
+}
+ print(newfrom[0]);
+//developer.log(fromolist.toString());
     //developer.log(result.toString());
     //developer.log(result.length.toString());
     //developer.log(xx);
 
-    setState(() {
-      listKey.currentState?.insertItem(items.length,
-          duration: const Duration(milliseconds: 800));
-      items = []
-        ..add(counter++)
-        ..addAll(items);
-    });
 
-    setState(() {
-      jsonClosests = result;
-      fromname = "" + jsonClosests[0]["stopname"];
-      fromval = jsonClosests[0]["stopid"];
-      lenofsuggestions = jsonClosests.length;
-    });
+
+
 
     setState(() {
       fromtyped = xx == "0" ? "" : xx;
@@ -189,7 +221,6 @@ class _MyFromBoxState extends State<myFromBox> {
 
     List<Map> result = await db.rawQuery(
         "select stopid,stopname,placeid, lat, lng from stops ${xx == "" ? "" : "where stopname like '$xx%'"} order by abs(${presentlat.toString()}-lat)+abs(${presentlong.toString()}-lng) asc limit 20");
-
 
     setState(() {
       listKeyTo.currentState?.insertItem(items.length,
@@ -353,8 +384,6 @@ developer.log(response.body);
   Future<String> setFromBoxLocation(double lat, double lng) async {
     closests[0] = " (LOADING)";
 
-
-
     WidgetsFlutterBinding.ensureInitialized();
     final database = openDatabase(
       Path.join(await getDatabasesPath(), 'stopsdatabase.db'),
@@ -364,7 +393,6 @@ developer.log(response.body);
 
     List<Map> result = await db.rawQuery(
         "select stopid,stopname,placeid, lat, lng from stops order by abs(${presentlat.toString()}-lat)+abs(${presentlong.toString()}-lng) asc limit 20");
-
 
     setState(() {
       jsonClosests = result;
@@ -383,7 +411,7 @@ developer.log(response.body);
       padding: EdgeInsets.fromLTRB(20, 60, 20, 0),
       child: Stack(
         children: [
-          FromSuggestionsBox(),
+          NewFromSuggestionsBox(),
           ToSuggestionsBox(),
           /* From OLD
           Container(
@@ -578,7 +606,9 @@ developer.log(response.body);
                               color: isfromfocused == 0
                                   ? Colors.white
                                   : Colors.black12,
-                              borderRadius: isfromfocused != 0 ? BorderRadius.circular(10) : BorderRadius.circular(0)),
+                              borderRadius: isfromfocused != 0
+                                  ? BorderRadius.circular(10)
+                                  : BorderRadius.circular(0)),
                           child: Row(
                             children: [
                               SizedBox(width: 10),

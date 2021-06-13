@@ -10,6 +10,8 @@ import 'dart:convert';
 import 'package:google_fonts/google_fonts.dart';
 import 'myFromandTo.dart';
 import 'myHome.dart';
+var newfrom=<Widget>[];
+
 var lenofsuggestions = 20;
 var location = new Location();
 var presentlat;
@@ -22,6 +24,8 @@ var jsonClosests = [];
 var jsonClosestsTo = [];
 var fromtyped = "";
 var totyped="";
+var fromolist=List.filled(5,new StopObject(lat: 0, lng: 0, stopname: "0", stopid: 0, placeid: "0", district: "0", state: "0") ,growable: true);
+var toolist=<StopObject>[];
 double fromlat=0;
 double fromlng=0;
 double tolat=0;
@@ -46,13 +50,13 @@ class StopObject{
   final String district;
   final String state ;
   StopObject({
-    required this.lat,
-    required this.lng,
-    required this.stopname,
-    required this.stopid,
-    required this.placeid,
-    required this.district,
-    required this.state,
+    this.lat=0,
+    this.lng=0,
+    this.stopname="",
+    this.stopid=0,
+    this.placeid="",
+    this.district="",
+    this.state="",
   });
   Map<String, dynamic> stopMapped() {
     return {
@@ -67,7 +71,7 @@ class StopObject{
   }
   @override
   String toString() {
-    return 'Stops{stopid: $stopid, stopname: $stopname, lat: $lat, lng: $lng, placeid: $placeid, district: $district, state: $state}';
+    return 'StopObject{stopid: $stopid, stopname: $stopname, lat: $lat, lng: $lng, placeid: $placeid, district: $district, state: $state}';
   }
 }
 
