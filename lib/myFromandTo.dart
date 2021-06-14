@@ -12,6 +12,7 @@ import 'dart:io';
 import 'myToSuggestions.dart';
 import 'dart:async';
 
+import 'package:google_fonts/google_fonts.dart';
 import 'package:path/path.dart' as Path;
 import 'package:sqflite/sqflite.dart';
 import 'package:flutter/widgets.dart';
@@ -22,7 +23,6 @@ int fromval = 0;
 var toname = "WHERE TO?";
 int toval = 0;
 late _MyFromBoxState fromBoxState;
-
 
 class myFromBox extends StatefulWidget {
   @override
@@ -68,7 +68,7 @@ class _MyFromBoxState extends State<myFromBox> {
       final db = await database;
 
       List<Map> result = await db.rawQuery(
-          "select stopid,stopname,placeid, lat, lng, state from stops order by abs(${presentlat.toString()}-lat)+abs(${presentlong.toString()}-lng) asc limit 10");
+          "select stopid,stopname,placeid, lat, lng, state from stops ${fromtyped == "" ? "" : "where stopname like '$fromtyped%'"} order by abs(${presentlat.toString()}-lat)+abs(${presentlong.toString()}-lng) asc limit 10");
 
       fromolist = [];
       newfrom = [];
@@ -82,9 +82,54 @@ class _MyFromBoxState extends State<myFromBox> {
               placeid: result[i]["placeid"],
               district: result[i]["district"],
               state: result[i]["state"]));
-              
+
           newfrom.add(fromolist[i].stopid != 0
-              ? Text(fromolist[i].stopname)
+              ? Container(
+                  //color: Colors.red,
+                  child: Container(
+                  padding: EdgeInsets.only(top: 10, bottom: 9),
+                  //width: 200,
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.location_on_outlined,
+                        color: Colors.black87,
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Container(
+                        //color:Colors.red,
+                        //width: 260,
+
+                        child: RichText(
+                            text: TextSpan(
+                                text: fromolist[i].stopname.length >
+                                        totyped.length
+                                    ? fromolist[i]
+                                        .stopname
+                                        .substring(0, totyped.length)
+                                    : fromolist[i].stopname.toString(),
+                                style: GoogleFonts.ptSansCaption(
+                                    fontSize: 17,
+                                    color: Colors.black87,
+                                    fontWeight: FontWeight.w700),
+                                children: [
+                              if (fromolist[i].stopname.length > totyped.length)
+                                TextSpan(
+                                    text: fromolist[i]
+                                        .stopname
+                                        .substring(totyped.length),
+                                    style: GoogleFonts.ptSansCaption(
+                                      fontSize: 17,
+                                      color: Colors.black54,
+                                      fontWeight: FontWeight.normal,
+                                    )),
+                            ])),
+                      ),
+                    ],
+                  ),
+                ))
               : SizedBox());
         });
       }
@@ -114,31 +159,69 @@ class _MyFromBoxState extends State<myFromBox> {
             placeid: result[i]["placeid"],
             district: result[i]["district"],
             state: result[i]["state"]));
-
-        
       });
     }
-    newfrom=[];
+    newfrom = [];
 
     //developer.log(fromolist.toString());
-for (i = 0; i < result.length; i++) {
-  developer.log(fromolist[i].stopname);
-  setState(() {
-    newfrom.add(fromolist[i].stopid != 0
-            ? Text(fromolist[i].stopname)
+    for (i = 0; i < result.length; i++) {
+      developer.log(fromolist[i].stopname);
+      setState(() {
+        newfrom.add(fromolist[i].stopid != 0
+            ? Container(
+                //color: Colors.red,
+                child: Container(
+                padding: EdgeInsets.only(top: 10, bottom: 9),
+                //width: 200,
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.location_on_outlined,
+                      color: Colors.black87,
+                    ),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Container(
+                      //color:Colors.red,
+                      //width: 260,
+
+                      child: RichText(
+                          text: TextSpan(
+                              text:
+                                  fromolist[i].stopname.length > totyped.length
+                                      ? fromolist[i]
+                                          .stopname
+                                          .substring(0, totyped.length)
+                                      : fromolist[i].stopname.toString(),
+                              style: GoogleFonts.ptSansCaption(
+                                  fontSize: 17,
+                                  color: Colors.black87,
+                                  fontWeight: FontWeight.w700),
+                              children: [
+                            if (fromolist[i].stopname.length > totyped.length)
+                              TextSpan(
+                                  text: fromolist[i]
+                                      .stopname
+                                      .substring(totyped.length),
+                                  style: GoogleFonts.ptSansCaption(
+                                    fontSize: 17,
+                                    color: Colors.black54,
+                                    fontWeight: FontWeight.normal,
+                                  )),
+                          ])),
+                    ),
+                  ],
+                ),
+              ))
             : SizedBox());
-  });
- 
-}
- print(newfrom[0]);
+      });
+    }
+    print(newfrom[0]);
 //developer.log(fromolist.toString());
     //developer.log(result.toString());
     //developer.log(result.length.toString());
     //developer.log(xx);
-
-
-
-
 
     setState(() {
       fromtyped = xx == "0" ? "" : xx;

@@ -47,22 +47,32 @@ class _NewFromSuggestionsBoxState extends State<NewFromSuggestionsBox> {
         height:
             isfromfocused == 0 ? 0 : MediaQuery.of(context).size.height - 280,
         margin: EdgeInsets.only(top: 80),
-        padding: const EdgeInsets.all(25.0),
-        color: Colors.green,
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          if (isfromfocused1 == 1)
-            Text(
-              "Nearby",
-              style: GoogleFonts.ptSansCaption(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 14,
-                  color: Color.fromRGBO(152, 152, 152, 1)),
+        padding: EdgeInsets.all(25.0),
+        //ow,
+        child: AnimatedOpacity(
+          curve: Curves.easeIn,
+          opacity: isfromfocused1==1 ? 1.0 : 0.0,
+          duration: Duration(milliseconds: 1000),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            if (isfromfocused1 == 1)
+              Text(
+                "Nearby",
+                style: GoogleFonts.ptSansCaption(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 14,
+                    color: Color.fromRGBO(152, 152, 152, 1)),
+              ),
+            if (isfromfocused == 1) SizedBox(height: 8),
+            Container(
+              height:MediaQuery.of(context).size.height - 400,
+                          child: ListView(
+                            padding: EdgeInsets.zero,
+                  children: newfrom,
+                ),
             ),
-          if (isfromfocused == 1) SizedBox(height: 8),
-          Expanded(
-            child: Column(children: newfrom),
-          )
-        ]),
+            
+          ]),
+        ),
       ),
     ]);
   }
