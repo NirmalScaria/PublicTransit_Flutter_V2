@@ -11,7 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'myFromandTo.dart';
 import 'myHome.dart';
 var newfrom=<Widget>[];
-
+var isqueryopen=0;
 var lenofsuggestions = 20;
 var location = new Location();
 var presentlat;
@@ -20,10 +20,13 @@ var isfromfocused = 0;
 var isfromfocused1 = 0;
 var istofocused=0;
 var istofocused1=0;
+var istofocusednew=0;
 var jsonClosests = [];
 var jsonClosestsTo = [];
 var fromtyped = "";
 var totyped="";
+StopObject fromselectedobject = StopObject();
+StopObject toselectedobject = StopObject();
 var fromolist=List.filled(5,new StopObject(lat: 0, lng: 0, stopname: "0", stopid: 0, placeid: "0", district: "0", state: "0") ,growable: true);
 var toolist=<StopObject>[];
 double fromlat=0;
@@ -158,7 +161,7 @@ Widget slideIt(BuildContext context, int index, animation) {
 
 
 
-
+/*
 Widget slideItTo(BuildContext context, int index, animation) {
   var item = index < jsonClosestsTo.length
       ? jsonClosestsTo[index]['stopname']
@@ -240,7 +243,7 @@ Widget slideItTo(BuildContext context, int index, animation) {
           : SizedBox(height: 5));
 }
 
-
+*/
 
 var jsonstartone = [
   {

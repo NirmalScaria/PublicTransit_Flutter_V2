@@ -23,6 +23,8 @@ int fromval = 0;
 var toname = "WHERE TO?";
 int toval = 0;
 late _MyFromBoxState fromBoxState;
+late FocusNode fromfocusnode;
+late FocusNode tofocusnode;
 
 class myFromBox extends StatefulWidget {
   @override
@@ -43,6 +45,8 @@ class _MyFromBoxState extends State<myFromBox> {
   //When response is got, he location value is updated.
   void initState() {
     super.initState();
+    fromfocusnode = FocusNode();
+    tofocusnode = FocusNode();
     BackButtonInterceptor.add(myInterceptor);
     setState(() {
       closests[0] = " WHERE?";
@@ -53,6 +57,8 @@ class _MyFromBoxState extends State<myFromBox> {
   }
 
   void openfrombox() async {
+    isqueryopen = 1;
+    istofocusednew = 0;
     if (isfromfocused == 0) {
       items = [];
       counter = 0;
@@ -69,9 +75,119 @@ class _MyFromBoxState extends State<myFromBox> {
 
       List<Map> result = await db.rawQuery(
           "select stopid,stopname,placeid, lat, lng, state from stops ${fromtyped == "" ? "" : "where stopname like '$fromtyped%'"} order by abs(${presentlat.toString()}-lat)+abs(${presentlong.toString()}-lng) asc limit 10");
-
+      fromfocusnode.requestFocus();
       fromolist = [];
       newfrom = [];
+      if (result.length != 0) {
+        for (i = 0; i < result.length; i++) {
+          setState(() {
+            fromolist.add(new StopObject(
+                lat: result[i]["lat"],
+                lng: result[i]["lng"],
+                stopname: result[i]["stopname"],
+                stopid: result[i]["stopid"],
+                placeid: result[i]["placeid"],
+                district: result[i]["district"],
+                state: result[i]["state"]));
+
+            newfrom.add(fromolist[i].stopid != 0
+                ? Container(
+                        //color: Colors.red,
+                        child: Container(
+                      padding: EdgeInsets.only(top: 10, bottom: 9),
+                      //width: 200,
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.location_on_outlined,
+                            color: Colors.black87,
+                          ),
+                          SizedBox(
+                            width: 10,
+                          ),
+                          Container(
+                            //color:Colors.red,
+                            width: 260,
+
+                            child: RichText(
+                                text: TextSpan(
+                                    text: fromolist[i].stopname.length >
+                                            fromtyped.length
+                                        ? fromolist[i]
+                                            .stopname
+                                            .substring(0, fromtyped.length)
+                                        : fromolist[i].stopname.toString(),
+                                    style: GoogleFonts.ptSansCaption(
+                                        fontSize: 17,
+                                        color: Colors.black87,
+                                        fontWeight: FontWeight.w700),
+                                    children: [
+                                  if (fromolist[i].stopname.length >
+                                      fromtyped.length)
+                                    TextSpan(
+                                        text: fromolist[i]
+                                            .stopname
+                                            .substring(fromtyped.length),
+                                        style: GoogleFonts.ptSansCaption(
+                                          fontSize: 17,
+                                          color: Colors.black54,
+                                          fontWeight: FontWeight.normal,
+                                        )),
+                                ])),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : SizedBox());
+          });
+        }
+      } else {
+        newfrom.add(Center(
+            child: Text("No result found",
+                style: GoogleFonts.ptSansCaption(
+                    fontSize: 17,
+                    color: Colors.black45,
+                    fontWeight: FontWeight.w700))));
+      }
+    }
+  }
+
+  void fromselected(var id) {
+    fromselectedobject = fromolist[id];
+    developer.log("SeLeCted from:");
+    developer.log(fromolist[id].stopname);
+    fromtyped=fromolist[id].stopname;
+    myFromController.text=fromolist[id].stopname;
+    movetoto();
+  }
+
+    void toselected(var id) {
+    toselectedobject = toolist[id];
+    developer.log("SeLeCted to:");
+    developer.log(toolist[id].stopname);
+    totyped=toolist[id].stopname;
+    myToController.text=toolist[id].stopname;
+    tofocusnode.requestFocus();
+  }
+
+  void onFromChanged(String xx) async {
+    setState(() {
+      fromtyped = xx == "0" ? "" : xx;
+    });
+    WidgetsFlutterBinding.ensureInitialized();
+    final database = openDatabase(
+      Path.join(await getDatabasesPath(), 'stopsdatabase.db'),
+      version: 1,
+    );
+    final db = await database;
+
+    List<Map> result = await db.rawQuery(
+        "select stopid,stopname,placeid, lat, lng, state from stops ${xx == "" ? "" : "where stopname like '$xx%'"} order by abs(${presentlat.toString()}-lat)+abs(${presentlong.toString()}-lng) asc limit 20");
+
+    fromolist = [];
+    newfrom = [];
+    if (result.length != 0) {
       for (i = 0; i < result.length; i++) {
         setState(() {
           fromolist.add(new StopObject(
@@ -82,7 +198,13 @@ class _MyFromBoxState extends State<myFromBox> {
               placeid: result[i]["placeid"],
               district: result[i]["district"],
               state: result[i]["state"]));
+        });
+      }
+      newfrom = [];
 
+      //developer.log(fromolist.toString());
+      for (i = 0; i < result.length; i++) {
+        setState(() {
           newfrom.add(fromolist[i].stopid != 0
               ? Container(
                   //color: Colors.red,
@@ -100,24 +222,164 @@ class _MyFromBoxState extends State<myFromBox> {
                       ),
                       Container(
                         //color:Colors.red,
-                        //width: 260,
+                        width: 260,
 
                         child: RichText(
                             text: TextSpan(
                                 text: fromolist[i].stopname.length >
-                                        totyped.length
+                                        fromtyped.length
                                     ? fromolist[i]
                                         .stopname
-                                        .substring(0, totyped.length)
+                                        .substring(0, fromtyped.length)
                                     : fromolist[i].stopname.toString(),
                                 style: GoogleFonts.ptSansCaption(
                                     fontSize: 17,
                                     color: Colors.black87,
                                     fontWeight: FontWeight.w700),
                                 children: [
-                              if (fromolist[i].stopname.length > totyped.length)
+                              if (fromolist[i].stopname.length >
+                                  fromtyped.length)
                                 TextSpan(
                                     text: fromolist[i]
+                                        .stopname
+                                        .substring(fromtyped.length),
+                                    style: GoogleFonts.ptSansCaption(
+                                      fontSize: 17,
+                                      color: Colors.black54,
+                                      fontWeight: FontWeight.normal,
+                                    )),
+                            ])),
+                      ),
+                    ],
+                  ),
+                ))
+              : SizedBox());
+        });
+      }
+//developer.log(fromolist.toString());
+      //developer.log(result.toString());
+      //developer.log(result.length.toString());
+      //developer.log(xx);
+    } else {
+      setState(() {
+        newfrom = [];
+        developer.log("NO RESULT");
+        newfrom.add(Center(
+            child: Text("No result found",
+                style: GoogleFonts.ptSansCaption(
+                    fontSize: 17,
+                    color: Colors.black45,
+                    fontWeight: FontWeight.w700))));
+      });
+    }
+  }
+
+  void closequerybox() async {
+    isqueryopen = 0;
+    if (isfromfocused == 1) {
+      setState(() {
+        isfromfocused1 = 0;
+        isfromfocused = 0;
+      });
+    }
+  }
+
+  void movetoto() {
+    if (isfromfocused == 1) {
+      setState(() {
+        isfromfocused = 0;
+        istofocusednew = 1;
+      });
+    }
+    onToChanged(totyped);
+    tofocusnode.requestFocus();
+  }
+
+
+
+  void opentobox() async {
+    if (istofocused == 0) {
+      setState(() {
+        istofocusednew = 1;
+        isqueryopen = 1;
+      });
+      onToChanged(totyped);
+    }
+    await Future.delayed(Duration(milliseconds: 400));
+    tofocusnode.requestFocus();
+  }
+
+  void onToChanged(String xx) async {
+    setState(() {
+      totyped = xx == "0" ? "" : xx;
+    });
+    WidgetsFlutterBinding.ensureInitialized();
+    final database = openDatabase(
+      Path.join(await getDatabasesPath(), 'stopsdatabase.db'),
+      version: 1,
+    );
+    final db = await database;
+
+    List<Map> result = await db.rawQuery(
+        "select stopid,stopname,placeid, lat, lng, state from stops ${xx == "" ? "" : "where stopname like '$xx%'"} order by abs(${presentlat.toString()}-lat)+abs(${presentlong.toString()}-lng) asc limit 20");
+
+    toolist = [];
+    newfrom = [];
+    //developer.log(result.length.toString());
+    if (result.length != 0) {
+      for (i = 0; i < result.length; i++) {
+        setState(() {
+          toolist.add(new StopObject(
+              lat: result[i]["lat"],
+              lng: result[i]["lng"],
+              stopname: result[i]["stopname"],
+              stopid: result[i]["stopid"],
+              placeid: result[i]["placeid"],
+              district: result[i]["district"],
+              state: result[i]["state"]));
+        });
+      }
+      newfrom = [];
+
+      //developer.log(fromolist.toString());
+      for (i = 0; i < result.length; i++) {
+        //developer.log(toolist[i].stopname);
+        setState(() {
+          newfrom.add(toolist[i].stopid != 0
+              ? Container(
+                  //color: Colors.red,
+                  child: Container(
+                  padding: EdgeInsets.only(top: 10, bottom: 9),
+                  //width: 200,
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.location_on_outlined,
+                        color: Colors.black87,
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Container(
+                        //color:Colors.red,
+                        width: 260,
+
+                        child: RichText(
+                            text: TextSpan(
+                                text:
+                                    toolist[i].stopname.length > totyped.length
+                                        ? toolist[i]
+                                            .stopname
+                                            .substring(0, totyped.length)
+                                        : toolist[i].stopname.toString(),
+                                style: GoogleFonts.ptSansCaption(
+                                    fontSize: 17,
+                                    color: Colors.black87,
+                                    fontWeight: FontWeight.w700),
+                                children: [
+                              if (toolist[i].stopname.length > totyped.length)
+                                TextSpan(
+                                    text: toolist[i]
                                         .stopname
                                         .substring(totyped.length),
                                     style: GoogleFonts.ptSansCaption(
@@ -133,196 +395,22 @@ class _MyFromBoxState extends State<myFromBox> {
               : SizedBox());
         });
       }
-    }
-  }
-
-  void onFromChanged(String xx) async {
-    WidgetsFlutterBinding.ensureInitialized();
-    final database = openDatabase(
-      Path.join(await getDatabasesPath(), 'stopsdatabase.db'),
-      version: 1,
-    );
-    final db = await database;
-
-    List<Map> result = await db.rawQuery(
-        "select stopid,stopname,placeid, lat, lng, state from stops ${xx == "" ? "" : "where stopname like '$xx%'"} order by abs(${presentlat.toString()}-lat)+abs(${presentlong.toString()}-lng) asc limit 10");
-
-    fromolist = [];
-    newfrom = [];
-    for (i = 0; i < result.length; i++) {
-      setState(() {
-        fromolist.add(new StopObject(
-            lat: result[i]["lat"],
-            lng: result[i]["lng"],
-            stopname: result[i]["stopname"],
-            stopid: result[i]["stopid"],
-            placeid: result[i]["placeid"],
-            district: result[i]["district"],
-            state: result[i]["state"]));
-      });
-    }
-    newfrom = [];
-
-    //developer.log(fromolist.toString());
-    for (i = 0; i < result.length; i++) {
-      developer.log(fromolist[i].stopname);
-      setState(() {
-        newfrom.add(fromolist[i].stopid != 0
-            ? Container(
-                //color: Colors.red,
-                child: Container(
-                padding: EdgeInsets.only(top: 10, bottom: 9),
-                //width: 200,
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.location_on_outlined,
-                      color: Colors.black87,
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Container(
-                      //color:Colors.red,
-                      //width: 260,
-
-                      child: RichText(
-                          text: TextSpan(
-                              text:
-                                  fromolist[i].stopname.length > totyped.length
-                                      ? fromolist[i]
-                                          .stopname
-                                          .substring(0, totyped.length)
-                                      : fromolist[i].stopname.toString(),
-                              style: GoogleFonts.ptSansCaption(
-                                  fontSize: 17,
-                                  color: Colors.black87,
-                                  fontWeight: FontWeight.w700),
-                              children: [
-                            if (fromolist[i].stopname.length > totyped.length)
-                              TextSpan(
-                                  text: fromolist[i]
-                                      .stopname
-                                      .substring(totyped.length),
-                                  style: GoogleFonts.ptSansCaption(
-                                    fontSize: 17,
-                                    color: Colors.black54,
-                                    fontWeight: FontWeight.normal,
-                                  )),
-                          ])),
-                    ),
-                  ],
-                ),
-              ))
-            : SizedBox());
-      });
-    }
-    print(newfrom[0]);
 //developer.log(fromolist.toString());
-    //developer.log(result.toString());
-    //developer.log(result.length.toString());
-    //developer.log(xx);
-
-    setState(() {
-      fromtyped = xx == "0" ? "" : xx;
-    });
-  }
-
-  void closefrombox() async {
-    if (isfromfocused == 1) {
+      //developer.log(result.toString());
+      //developer.log(result.length.toString());
+      //developer.log(xx);
+    } else {
       setState(() {
-        isfromfocused1 = 0;
-        isfromfocused = 0;
-      });
-      while (items.length > -1) {
-        if (items.length < 1) return;
-        listKey.currentState?.removeItem(
-            items.length - 1, (_, animation) => slideIt(context, 0, animation),
-            duration: const Duration(milliseconds: 1));
-        setState(() {
-          items.removeAt(0);
-        });
-      }
-      items = [];
-      counter = 0;
-    }
-  }
-
-  void movetoto() {
-    if (isfromfocused == 1) {
-      setState(() {
-        isfromfocused1 = 0;
-        isfromfocused = 0;
+        newfrom = [];
+        developer.log("NO RESULT");
+        newfrom.add(Center(
+            child: Text("No result found",
+                style: GoogleFonts.ptSansCaption(
+                    fontSize: 17,
+                    color: Colors.black45,
+                    fontWeight: FontWeight.w700))));
       });
     }
-  }
-
-  void toselected() {
-    if (istofocused == 1) {
-      setState(() {
-        istofocused1 = 0;
-        istofocused = 0;
-      });
-    }
-  }
-
-  void opentobox() async {
-    if (istofocused == 0) {
-      items = [];
-      counter = 0;
-      setState(() {
-        istofocused = 1;
-        istofocused1 = 1;
-      });
-      if (myToController.text.length > 0) {
-        //onToChanged(totyped);
-      } else {
-        for (int i = 0; i < jsonClosestsTo.length; i++) {
-          if (istofocused == 1) {
-            setState(() {
-              listKeyTo.currentState?.insertItem(items.length,
-                  duration: const Duration(milliseconds: 800));
-              items = []
-                ..add(counter++)
-                ..addAll(items);
-            });
-            await Future.delayed(Duration(milliseconds: i < 6 ? i * 40 : 20));
-          }
-        }
-      }
-    }
-    onToChanged("");
-  }
-
-  void onToChanged(String xx) async {
-    WidgetsFlutterBinding.ensureInitialized();
-    final database = openDatabase(
-      Path.join(await getDatabasesPath(), 'stopsdatabase.db'),
-      version: 1,
-    );
-    final db = await database;
-
-    List<Map> result = await db.rawQuery(
-        "select stopid,stopname,placeid, lat, lng from stops ${xx == "" ? "" : "where stopname like '$xx%'"} order by abs(${presentlat.toString()}-lat)+abs(${presentlong.toString()}-lng) asc limit 20");
-
-    setState(() {
-      listKeyTo.currentState?.insertItem(items.length,
-          duration: const Duration(milliseconds: 800));
-      items = []
-        ..add(counter++)
-        ..addAll(items);
-    });
-
-    setState(() {
-      jsonClosestsTo = result;
-      toname = "" + jsonClosestsTo[0]["stopname"];
-      toval = jsonClosestsTo[0]["stopid"];
-      lenofsuggestions = jsonClosestsTo.length;
-    });
-
-    setState(() {
-      totyped = xx == "0" ? "" : xx;
-    });
   }
 
   void closetobox() async {
@@ -352,7 +440,7 @@ class _MyFromBoxState extends State<myFromBox> {
   }
 
   bool myInterceptor(bool stopDefaultButtonEvent, RouteInfo info) {
-    closefrombox();
+    closequerybox();
     return true;
   }
 
@@ -363,7 +451,7 @@ class _MyFromBoxState extends State<myFromBox> {
       onCreate: (db, version) {
         return db.execute(
           """CREATE TABLE stops(
-        stopid INTEGER, 
+        stopid INTEGER PRIMARY KEY, 
         stopname TEXT, 
         district TEXT,
         lat DOUBLE,
@@ -393,7 +481,7 @@ class _MyFromBoxState extends State<myFromBox> {
           await db.rawQuery('SELECT COUNT(*) FROM stops'));
       //developer.log("TOTAL ROWS:");
       //developer.log(count.toString());
-      if (count! < 1000) {
+      if (count! < 200) {
         developer.log("UPDATING DATABASE");
         //developer.log((1000 - count).toString());
         //UPDATE DATABASE
@@ -440,7 +528,6 @@ class _MyFromBoxState extends State<myFromBox> {
       });
     }
 
-    print(await displayStops());
 /*
     closests[0] = " (LOADING)";
     var url = Uri.parse(
@@ -495,63 +582,31 @@ developer.log(response.body);
       child: Stack(
         children: [
           NewFromSuggestionsBox(),
-          ToSuggestionsBox(),
-          /* From OLD
-          Container(
-            decoration: BoxDecoration(
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black38,
-                  blurRadius: 17,
-                  offset: const Offset(0, 0),
-                ),
-              ],
-            ),
-            child: TextField(
-              textCapitalization: TextCapitalization.characters,
-              decoration: InputDecoration(
-                  prefixIcon: const Icon(
-                    Icons.location_searching_rounded,
+          if (isqueryopen == 0)
+            Container(
+              alignment: Alignment(0, -1),
+              padding: EdgeInsets.only(top: 100),
+              child: DecoratedIcon(
+                Icons.more_vert,
+                color: Colors.white,
+                size: 80,
+                shadows: [
+                  BoxShadow(
+                    blurRadius: 12.0,
+                    color: Colors.black54,
                   ),
-                  fillColor: Colors.white,
-                  filled: true,
-                  border: InputBorder.none,
-                  hintText: 'FROM$fromname'),
-            ),
-          ),
-          */
-          if (isfromfocused1 == 0)
-            if (istofocused1 == 0)
-              Container(
-                alignment: Alignment(0, -1),
-                padding: EdgeInsets.only(top: 100),
-                child: DecoratedIcon(
-                  Icons.more_vert,
-                  color: Colors.white,
-                  size: 80,
-                  shadows: [
-                    BoxShadow(
-                      blurRadius: 12.0,
-                      color: Colors.black54,
-                    ),
-                  ],
-                ),
+                ],
               ),
-          if (isfromfocused1 == 0)
+            ),
+          if (isqueryopen == 0)
             AnimatedContainer(
                 curve: Curves.fastOutSlowIn,
                 duration: Duration(milliseconds: 500),
-                margin: istofocused == 1
-                    ? EdgeInsets.fromLTRB(0, 0, 0, 0)
-                    : EdgeInsets.fromLTRB(10, 190, 10, 0),
-                padding: istofocused == 0
-                    ? EdgeInsets.fromLTRB(0, 0, 0, 0)
-                    : EdgeInsets.fromLTRB(10, 10, 10, 10),
+                margin: EdgeInsets.fromLTRB(10, 190, 10, 0),
+                padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: istofocused == 0
-                      ? BorderRadius.zero
-                      : BorderRadius.circular(14),
+                  borderRadius: BorderRadius.zero,
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black38,
@@ -572,9 +627,7 @@ developer.log(response.body);
                           duration: Duration(milliseconds: 500),
                           width: 290,
                           decoration: BoxDecoration(
-                              color: istofocused == 0
-                                  ? Colors.white
-                                  : Colors.black12,
+                              color: Colors.white,
                               borderRadius: BorderRadius.circular(10)),
                           child: Row(
                             children: [
@@ -599,7 +652,7 @@ developer.log(response.body);
                                       TextCapitalization.characters,
                                   decoration: InputDecoration(
                                       border: InputBorder.none,
-                                      hintText: '$toname'),
+                                      hintText: 'WHERE?'),
                                   onTap: opentobox,
                                 ),
                               ),
@@ -621,49 +674,21 @@ developer.log(response.body);
                     )
                   ],
                 )),
-
-          /*
-            Container(
-              margin: EdgeInsets.fromLTRB(10, 190, 10, 0),
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black38,
-                    blurRadius: 17,
-                    offset: const Offset(0, 0),
-                  ),
-                ],
-              ),
-              child: TextField(
-                textCapitalization: TextCapitalization.characters,
-                decoration: InputDecoration(
-                    prefixIcon: const Icon(
-                      Icons.location_on_rounded,
-                      color: Colors.black87,
-                    ),
-                    fillColor: Colors.white,
-                    filled: true,
-                    border: InputBorder.none,
-                    hintText: '$toname',
-                    hintStyle: TextStyle(color: Colors.black87)),
-              ),
-            ),
-*/
-
           Visibility(
             visible: istofocused == 0 ? true : false,
             child: AnimatedContainer(
                 curve: Curves.fastOutSlowIn,
                 duration: Duration(milliseconds: 500),
-                margin: isfromfocused == 1
+                height: isqueryopen == 0 ? 50 : 125,
+                margin: isqueryopen == 1
                     ? EdgeInsets.fromLTRB(0, 0, 0, 0)
                     : EdgeInsets.fromLTRB(10, 40, 10, 0),
-                padding: isfromfocused == 0
+                padding: isqueryopen == 0
                     ? EdgeInsets.fromLTRB(0, 0, 0, 0)
                     : EdgeInsets.fromLTRB(10, 10, 10, 10),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: isfromfocused == 0
+                  borderRadius: isqueryopen == 0
                       ? BorderRadius.zero
                       : BorderRadius.circular(14),
                   boxShadow: [
@@ -674,68 +699,138 @@ developer.log(response.body);
                     ),
                   ],
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        openfrombox();
-                      },
-                      child: AnimatedContainer(
-                          curve: Curves.fastOutSlowIn,
-                          duration: Duration(milliseconds: 500),
-                          width: 290,
-                          decoration: BoxDecoration(
-                              color: isfromfocused == 0
-                                  ? Colors.white
-                                  : Colors.black12,
-                              borderRadius: isfromfocused != 0
-                                  ? BorderRadius.circular(10)
-                                  : BorderRadius.circular(0)),
-                          child: Row(
+                child: SingleChildScrollView(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Stack(
+                        children: [
+                          AnimatedContainer(
+                            curve: Curves.fastOutSlowIn,
+                            duration: Duration(milliseconds: 500),
+                            width: MediaQuery.of(context).size.width - 110,
+                            height: 50,
+                            margin: EdgeInsets.only(
+                                top: istofocusednew == 0 ? 0 : 55),
+                            decoration: BoxDecoration(
+                                color: isqueryopen == 0
+                                    ? Colors.white
+                                    : Color.fromRGBO(150, 150, 150, 0.2),
+                                borderRadius: isqueryopen != 0
+                                    ? BorderRadius.circular(10)
+                                    : BorderRadius.circular(0)),
+                          ),
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              SizedBox(width: 10),
-                              Icon(
-                                Icons.my_location,
+                              GestureDetector(
+                                onTap: () {
+                                  openfrombox();
+                                },
+                                child: AnimatedContainer(
+                                    curve: Curves.fastOutSlowIn,
+                                    duration: Duration(milliseconds: 500),
+                                    width: 290,
+                                    decoration: BoxDecoration(
+                                        borderRadius: isqueryopen != 0
+                                            ? BorderRadius.circular(10)
+                                            : BorderRadius.circular(0)),
+                                    child: Row(
+                                      children: [
+                                        SizedBox(width: 10),
+                                        Icon(
+                                          Icons.my_location,
+                                        ),
+                                        SizedBox(width: 7),
+                                        Text("FROM: ",
+                                            style: TextStyle(
+                                              fontSize: 17,
+                                              color: Colors.black87,
+                                            )),
+                                        Expanded(
+                                          child: TextField(
+                                            textInputAction:
+                                                TextInputAction.next,
+                                            onChanged: (String xx) {
+                                              onFromChanged(xx);
+                                            },
+                                            controller: myFromController,
+                                            textCapitalization:
+                                                TextCapitalization.characters,
+                                            decoration: InputDecoration(
+                                                border: InputBorder.none,
+                                                hintText: '$fromname'),
+                                            onTap: openfrombox,
+                                          ),
+                                        ),
+                                      ],
+                                    )),
                               ),
-                              SizedBox(width: 7),
-                              Text("FROM: ",
-                                  style: TextStyle(
-                                    fontSize: 17,
-                                    color: Colors.black87,
-                                  )),
-                              Expanded(
-                                child: TextField(
-                                  textInputAction: TextInputAction.next,
-                                  onChanged: (String xx) {
-                                    onFromChanged(xx);
+                              if (isqueryopen == 1) SizedBox(height: 08),
+                              if (isqueryopen == 1)
+                                GestureDetector(
+                                  onTap: () {
+                                    openfrombox();
                                   },
-                                  controller: myFromController,
-                                  textCapitalization:
-                                      TextCapitalization.characters,
-                                  decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                      hintText: '$fromname'),
-                                  onTap: openfrombox,
+                                  child: AnimatedContainer(
+                                      curve: Curves.fastOutSlowIn,
+                                      duration: Duration(milliseconds: 500),
+                                      width: 290,
+                                      decoration: BoxDecoration(
+                                          borderRadius: isqueryopen != 0
+                                              ? BorderRadius.circular(10)
+                                              : BorderRadius.circular(0)),
+                                      child: Row(
+                                        children: [
+                                          SizedBox(width: 10),
+                                          Icon(
+                                            Icons.location_on,
+                                          ),
+                                          SizedBox(width: 7),
+                                          Text("TO: ",
+                                              style: TextStyle(
+                                                fontSize: 17,
+                                                color: Colors.black87,
+                                              )),
+                                          Expanded(
+                                            child: TextField(
+                                              focusNode: tofocusnode,
+                                              textInputAction:
+                                                  TextInputAction.next,
+                                              onChanged: (String xx) {
+                                                onToChanged(xx);
+                                              },
+                                              controller: myToController,
+                                              textCapitalization:
+                                                  TextCapitalization.characters,
+                                              decoration: InputDecoration(
+                                                  border: InputBorder.none,
+                                                  hintText: 'WHERE?'),
+                                              onTap: movetoto,
+                                            ),
+                                          ),
+                                        ],
+                                      )),
                                 ),
-                              ),
                             ],
-                          )),
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        closefrombox();
-                        FocusScope.of(context).unfocus();
-                      },
-                      child: Container(
-                          color: Colors.white,
-                          height: 40,
-                          width: 40,
-                          child: isfromfocused == 0
-                              ? SizedBox(width: 5)
-                              : Icon(Icons.arrow_back)),
-                    )
-                  ],
+                          ),
+                        ],
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          closequerybox();
+                          FocusScope.of(context).unfocus();
+                        },
+                        child: Container(
+                            color: Colors.white,
+                            height: 40,
+                            width: 40,
+                            child: isqueryopen == 0
+                                ? SizedBox(width: 5)
+                                : Icon(Icons.arrow_back)),
+                      )
+                    ],
+                  ),
                 )),
           ),
         ],

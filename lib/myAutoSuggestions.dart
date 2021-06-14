@@ -1,3 +1,4 @@
+import 'package:busmap2/myFromandTo.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
@@ -22,19 +23,19 @@ class _NewFromSuggestionsBoxState extends State<NewFromSuggestionsBox> {
       AnimatedContainer(
         duration: Duration(milliseconds: 800),
         curve: Curves.fastOutSlowIn,
-        margin: isfromfocused == 0
-            ? EdgeInsets.only(top: 70, left: 10, right: 10)
-            : EdgeInsets.only(top: 80),
+        margin: isqueryopen == 0
+            ? EdgeInsets.only(top: 200, left: 10, right: 10)
+            : EdgeInsets.only(top: 140),
         height:
-            isfromfocused == 0 ? 0 : MediaQuery.of(context).size.height - 280,
+            isqueryopen == 0 ? 0 : MediaQuery.of(context).size.height - 280,
         decoration: BoxDecoration(
-          color: isfromfocused == 0
+          color: isqueryopen == 0
               ? Color.fromRGBO(255, 255, 255, 0.3)
               : Color.fromRGBO(255, 255, 255, 1),
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: isfromfocused == 0
+              color: isqueryopen == 0
                   ? Color.fromRGBO(255, 255, 255, 0)
                   : Colors.black38,
               blurRadius: 17,
@@ -44,17 +45,17 @@ class _NewFromSuggestionsBoxState extends State<NewFromSuggestionsBox> {
         ),
       ),
       Container(
-        height:
-            isfromfocused == 0 ? 0 : MediaQuery.of(context).size.height - 280,
-        margin: EdgeInsets.only(top: 80),
+        height: isqueryopen == 0 ? 0 : MediaQuery.of(context).size.height - 280,
+        margin: EdgeInsets.only(top: 140),
         padding: EdgeInsets.all(25.0),
         //ow,
         child: AnimatedOpacity(
           curve: Curves.easeIn,
-          opacity: isfromfocused1==1 ? 1.0 : 0.0,
+          opacity: isqueryopen == 1 ? 1.0 : 0.0,
           duration: Duration(milliseconds: 1000),
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            if (isfromfocused1 == 1)
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            if (isqueryopen == 1)
               Text(
                 "Nearby",
                 style: GoogleFonts.ptSansCaption(
@@ -62,15 +63,28 @@ class _NewFromSuggestionsBoxState extends State<NewFromSuggestionsBox> {
                     fontSize: 14,
                     color: Color.fromRGBO(152, 152, 152, 1)),
               ),
-            if (isfromfocused == 1) SizedBox(height: 8),
+            if (isqueryopen == 1) SizedBox(height: 8),
             Container(
-              height:MediaQuery.of(context).size.height - 400,
-                          child: ListView(
-                            padding: EdgeInsets.zero,
-                  children: newfrom,
-                ),
+              height: MediaQuery.of(context).size.height - 400,
+              child: ListView.builder(
+                itemCount: newfrom.length,
+                itemBuilder: (context, key){
+                  return GestureDetector(
+                    child: newfrom[key],
+                    onTap: (){
+                      if(istofocusednew==1){
+                        fromBoxState.toselected(key);
+                      }
+                        else{
+                      fromBoxState.fromselected(key);}
+                    });
+                },
+                physics: const BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics()),
+                padding: EdgeInsets.zero,
+                
+              ),
             ),
-            
           ]),
         ),
       ),
@@ -94,19 +108,18 @@ class _FromSuggestionsBoxState extends State<FromSuggestionsBox> {
       AnimatedContainer(
         duration: Duration(milliseconds: 800),
         curve: Curves.fastOutSlowIn,
-        margin: isfromfocused == 0
+        margin: isqueryopen == 0
             ? EdgeInsets.only(top: 70, left: 10, right: 10)
             : EdgeInsets.only(top: 80),
-        height:
-            isfromfocused == 0 ? 0 : MediaQuery.of(context).size.height - 280,
+        height: isqueryopen == 0 ? 0 : MediaQuery.of(context).size.height - 280,
         decoration: BoxDecoration(
-          color: isfromfocused == 0
+          color: isqueryopen == 0
               ? Color.fromRGBO(255, 255, 255, 0.3)
               : Color.fromRGBO(255, 255, 255, 1),
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
-              color: isfromfocused == 0
+              color: isqueryopen == 0
                   ? Color.fromRGBO(255, 255, 255, 0)
                   : Colors.black38,
               blurRadius: 17,
@@ -116,12 +129,11 @@ class _FromSuggestionsBoxState extends State<FromSuggestionsBox> {
         ),
       ),
       Container(
-        height:
-            isfromfocused == 0 ? 0 : MediaQuery.of(context).size.height - 280,
+        height: isqueryopen == 0 ? 0 : MediaQuery.of(context).size.height - 280,
         margin: EdgeInsets.only(top: 80),
         padding: const EdgeInsets.all(25.0),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          if (isfromfocused1 == 1)
+          if (isqueryopen == 1)
             Text(
               "Nearby",
               style: GoogleFonts.ptSansCaption(
@@ -129,7 +141,7 @@ class _FromSuggestionsBoxState extends State<FromSuggestionsBox> {
                   fontSize: 14,
                   color: Color.fromRGBO(152, 152, 152, 1)),
             ),
-          if (isfromfocused == 1) SizedBox(height: 8),
+          if (isqueryopen == 1) SizedBox(height: 8),
           Expanded(
             child: AnimatedList(
               physics: BouncingScrollPhysics(),

@@ -63,7 +63,8 @@ class _ToSuggestionsBoxState extends State<ToSuggestionsBox> {
               key: listKeyTo,
               initialItemCount: 0,
               itemBuilder: (context, index, animation) {
-                return slideItTo(context, index, animation);
+                return Text("UNWANTEd");
+                //return slideItTo(context, index, animation);
               },
             ),
           )
