@@ -10,24 +10,20 @@ import 'dart:convert';
 import 'package:google_fonts/google_fonts.dart';
 import 'myFromandTo.dart';
 import 'myHome.dart';
-var newfrom=<Widget>[];
+var suggestionWidgets=<Widget>[];
 var isqueryopen=0;
-var lenofsuggestions = 20;
 var location = new Location();
 var presentlat;
 var presentlong;
 var isfromfocused = 0;
-var isfromfocused1 = 0;
 var istofocused=0;
-var istofocused1=0;
-var istofocusednew=0;
-var jsonClosests = [];
-var jsonClosestsTo = [];
 var fromtyped = "";
 var totyped="";
+
 StopObject fromselectedobject = StopObject();
 StopObject toselectedobject = StopObject();
-var fromolist=List.filled(5,new StopObject(lat: 0, lng: 0, stopname: "0", stopid: 0, placeid: "0", district: "0", state: "0") ,growable: true);
+
+var fromolist=<StopObject>[];
 var toolist=<StopObject>[];
 double fromlat=0;
 double fromlng=0;
@@ -41,8 +37,6 @@ var myToController = TextEditingController();
 final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
 
 final GlobalKey<AnimatedListState> listKeyTo = GlobalKey<AnimatedListState>();
-int counter = 0;
-List items = [];
 
 class StopObject{
   final double lat;
@@ -78,86 +72,6 @@ class StopObject{
   }
 }
 
-Widget slideIt(BuildContext context, int index, animation) {
-  var item = index < jsonClosests.length
-      ? jsonClosests[index]['stopname']
-      : "NO RESULT FOUND";
-  return SlideTransition(
-      position: Tween<Offset>(
-        begin: const Offset(0.2, 0),
-        end: Offset(0, 0),
-      ).animate(
-          CurvedAnimation(parent: animation, curve: Curves.fastOutSlowIn)),
-      child: index < lenofsuggestions
-          ? Material(
-              color: Colors.white.withOpacity(0.0),
-              child: InkWell(
-                  onTap: () {
-                    fromBoxState.movetoto();
-
-                    FocusScope.of(context).unfocus();
-                    //fromtyped = "$item";
-                    fromid=jsonClosests[index]['stopid'];
-                    fromlat=jsonClosests[index]['lat'];
-                    fromlng=jsonClosests[index]['lng'];
-                    
-                    myFromController.text = "$item";
-                    backgroundMapState.setFromOnly(fromlat, fromlng);
-                    /*
-                  fromtyped="$item";
-                  */
-                  },
-                  child: Ink(
-                    color: Colors.transparent,
-                    // Actual widget to display
-                    //constraints: BoxConstraints(maxWidth: 500),
-                    //height: 50.0,
-                    padding: EdgeInsets.only(top: 10, bottom: 9),
-                    width: 90,
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.location_on_outlined,
-                          color: Colors.black87,
-                        ),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Container(
-                          //color:Colors.red,
-                          width: 260,
-
-                          child: RichText(
-                              text: TextSpan(
-                                  text:
-                                      item.toString().length > fromtyped.length
-                                          ? item
-                                              .toString()
-                                              .substring(0, fromtyped.length)
-                                          : item.toString(),
-                                  style: GoogleFonts.ptSansCaption(
-                                      fontSize: 17,
-                                      color: Colors.black87,
-                                      fontWeight: FontWeight.w700),
-                                  children: [
-                                if (item.toString().length > fromtyped.length)
-                                  TextSpan(
-                                      text: item
-                                          .toString()
-                                          .substring(fromtyped.length),
-                                      style: GoogleFonts.ptSansCaption(
-                                        fontSize: 17,
-                                        color: Colors.black54,
-                                        fontWeight: FontWeight.normal,
-                                      )),
-                              ])),
-                        ),
-                      ],
-                    ),
-                  )),
-            )
-          : SizedBox(height: 5));
-}
 
 
 

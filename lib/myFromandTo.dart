@@ -8,8 +8,7 @@ import 'dart:convert';
 import 'myGlobals.dart';
 import 'myAutoSuggestions.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
-import 'dart:io';
-import 'myToSuggestions.dart';
+
 import 'dart:async';
 
 import 'package:google_fonts/google_fonts.dart';
@@ -17,11 +16,8 @@ import 'package:path/path.dart' as Path;
 import 'package:sqflite/sqflite.dart';
 import 'package:flutter/widgets.dart';
 
-var closests = [" WHERE ?", " TO?"];
 var fromname = " WHERE?";
-int fromval = 0;
 var toname = "WHERE TO?";
-int toval = 0;
 late _MyFromBoxState fromBoxState;
 late FocusNode fromfocusnode;
 late FocusNode tofocusnode;
@@ -39,7 +35,6 @@ class _MyFromBoxState extends State<myFromBox> {
   var resptext = "0";
   var latestrequest = 1;
   @override
-
   //Init state of the form boxes execute a get location command.
   //When location is got, then occurs the get response command towards server.
   //When response is got, he location value is updated.
@@ -48,127 +43,81 @@ class _MyFromBoxState extends State<myFromBox> {
     fromfocusnode = FocusNode();
     tofocusnode = FocusNode();
     BackButtonInterceptor.add(myInterceptor);
-    setState(() {
-      closests[0] = " WHERE?";
-      closests[1] = " TO?";
-    });
+
     location.getLocation().then((LocationData locationData) {});
     initDatabase(0.0, 0.0);
   }
 
   void openfrombox() async {
     isqueryopen = 1;
-    istofocusednew = 0;
+    istofocused = 0;
     if (isfromfocused == 0) {
-      items = [];
-      counter = 0;
       setState(() {
         isfromfocused = 1;
-        isfromfocused1 = 1;
       });
-      WidgetsFlutterBinding.ensureInitialized();
-      final database = openDatabase(
-        Path.join(await getDatabasesPath(), 'stopsdatabase.db'),
-        version: 1,
-      );
-      final db = await database;
+      onFromChanged(fromtyped);
 
-      List<Map> result = await db.rawQuery(
-          "select stopid,stopname,placeid, lat, lng, state from stops ${fromtyped == "" ? "" : "where stopname like '$fromtyped%'"} order by abs(${presentlat.toString()}-lat)+abs(${presentlong.toString()}-lng) asc limit 10");
       fromfocusnode.requestFocus();
-      fromolist = [];
-      newfrom = [];
-      if (result.length != 0) {
-        for (i = 0; i < result.length; i++) {
-          setState(() {
-            fromolist.add(new StopObject(
-                lat: result[i]["lat"],
-                lng: result[i]["lng"],
-                stopname: result[i]["stopname"],
-                stopid: result[i]["stopid"],
-                placeid: result[i]["placeid"],
-                district: result[i]["district"],
-                state: result[i]["state"]));
+          myFromController.selection = TextSelection.fromPosition(TextPosition(offset: myFromController.text.length));
 
-            newfrom.add(fromolist[i].stopid != 0
-                ? Container(
-                        //color: Colors.red,
-                        child: Container(
-                      padding: EdgeInsets.only(top: 10, bottom: 9),
-                      //width: 200,
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.location_on_outlined,
-                            color: Colors.black87,
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          Container(
-                            //color:Colors.red,
-                            width: 260,
+    }
+  }
 
-                            child: RichText(
-                                text: TextSpan(
-                                    text: fromolist[i].stopname.length >
-                                            fromtyped.length
-                                        ? fromolist[i]
-                                            .stopname
-                                            .substring(0, fromtyped.length)
-                                        : fromolist[i].stopname.toString(),
-                                    style: GoogleFonts.ptSansCaption(
-                                        fontSize: 17,
-                                        color: Colors.black87,
-                                        fontWeight: FontWeight.w700),
-                                    children: [
-                                  if (fromolist[i].stopname.length >
-                                      fromtyped.length)
-                                    TextSpan(
-                                        text: fromolist[i]
-                                            .stopname
-                                            .substring(fromtyped.length),
-                                        style: GoogleFonts.ptSansCaption(
-                                          fontSize: 17,
-                                          color: Colors.black54,
-                                          fontWeight: FontWeight.normal,
-                                        )),
-                                ])),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                : SizedBox());
-          });
-        }
+  void selectionComplete(int fromstopid, int tostopid) {}
+
+  void selectedOrigin(var id) {
+    fromselectedobject = fromolist[id];
+    developer.log("SeLeCted from:");
+    developer.log(fromolist[id].stopname);
+    fromtyped = fromolist[id].stopname;
+    myFromController.text = fromolist[id].stopname;
+        myFromController.selection = TextSelection.fromPosition(TextPosition(offset: myFromController.text.length));
+
+    fromid = fromolist[id].stopid;
+    if (fromid == toid) {
+      toid = 0;
+      totyped = "";
+      myToController.text = "";
+      movetoto();
+    } else {
+      if (toid == 0) {
+        movetoto();
       } else {
-        newfrom.add(Center(
-            child: Text("No result found",
-                style: GoogleFonts.ptSansCaption(
-                    fontSize: 17,
-                    color: Colors.black45,
-                    fontWeight: FontWeight.w700))));
+
+      developer.log("SELECTION COMPLETED");
+        selectionComplete(fromid, toid);
       }
     }
   }
 
-  void fromselected(var id) {
-    fromselectedobject = fromolist[id];
-    developer.log("SeLeCted from:");
-    developer.log(fromolist[id].stopname);
-    fromtyped=fromolist[id].stopname;
-    myFromController.text=fromolist[id].stopname;
-    movetoto();
-  }
-
-    void toselected(var id) {
+  Future<void> selectedDestination(var id) async {
     toselectedobject = toolist[id];
     developer.log("SeLeCted to:");
     developer.log(toolist[id].stopname);
-    totyped=toolist[id].stopname;
-    myToController.text=toolist[id].stopname;
-    tofocusnode.requestFocus();
+    totyped = toolist[id].stopname;
+    myToController.text = toolist[id].stopname;
+        myToController.selection = TextSelection.fromPosition(TextPosition(offset: myToController.text.length));
+
+    toid = toolist[id].stopid;
+    if (toid == fromid) {
+      fromid = 0;
+      fromtyped = "";
+      myFromController.text="";
+      fromname="WHERE?";
+      openfrombox();
+    }
+    else {
+    if(fromid==0){
+      fromtyped="";
+      myFromController.text="";
+      fromname="WHERE?";
+      openfrombox();
+    }
+    else{
+      developer.log("SELECTION COMPLETED");
+selectionComplete(fromid, toid);
+    }
+    }
   }
 
   void onFromChanged(String xx) async {
@@ -186,7 +135,7 @@ class _MyFromBoxState extends State<myFromBox> {
         "select stopid,stopname,placeid, lat, lng, state from stops ${xx == "" ? "" : "where stopname like '$xx%'"} order by abs(${presentlat.toString()}-lat)+abs(${presentlong.toString()}-lng) asc limit 20");
 
     fromolist = [];
-    newfrom = [];
+    suggestionWidgets = [];
     if (result.length != 0) {
       for (i = 0; i < result.length; i++) {
         setState(() {
@@ -200,12 +149,12 @@ class _MyFromBoxState extends State<myFromBox> {
               state: result[i]["state"]));
         });
       }
-      newfrom = [];
+      suggestionWidgets = [];
 
       //developer.log(fromolist.toString());
       for (i = 0; i < result.length; i++) {
         setState(() {
-          newfrom.add(fromolist[i].stopid != 0
+          suggestionWidgets.add(fromolist[i].stopid != 0
               ? Container(
                   //color: Colors.red,
                   child: Container(
@@ -262,9 +211,9 @@ class _MyFromBoxState extends State<myFromBox> {
       //developer.log(xx);
     } else {
       setState(() {
-        newfrom = [];
+        suggestionWidgets = [];
         developer.log("NO RESULT");
-        newfrom.add(Center(
+        suggestionWidgets.add(Center(
             child: Text("No result found",
                 style: GoogleFonts.ptSansCaption(
                     fontSize: 17,
@@ -278,7 +227,6 @@ class _MyFromBoxState extends State<myFromBox> {
     isqueryopen = 0;
     if (isfromfocused == 1) {
       setState(() {
-        isfromfocused1 = 0;
         isfromfocused = 0;
       });
     }
@@ -288,25 +236,26 @@ class _MyFromBoxState extends State<myFromBox> {
     if (isfromfocused == 1) {
       setState(() {
         isfromfocused = 0;
-        istofocusednew = 1;
+        istofocused = 1;
       });
     }
     onToChanged(totyped);
     tofocusnode.requestFocus();
+    myToController.selection = TextSelection.fromPosition(TextPosition(offset: myToController.text.length));
+
   }
-
-
 
   void opentobox() async {
     if (istofocused == 0) {
       setState(() {
-        istofocusednew = 1;
+        istofocused = 1;
         isqueryopen = 1;
       });
       onToChanged(totyped);
     }
-    await Future.delayed(Duration(milliseconds: 400));
     tofocusnode.requestFocus();
+    myToController.selection = TextSelection.fromPosition(TextPosition(offset: myToController.text.length));
+
   }
 
   void onToChanged(String xx) async {
@@ -324,7 +273,7 @@ class _MyFromBoxState extends State<myFromBox> {
         "select stopid,stopname,placeid, lat, lng, state from stops ${xx == "" ? "" : "where stopname like '$xx%'"} order by abs(${presentlat.toString()}-lat)+abs(${presentlong.toString()}-lng) asc limit 20");
 
     toolist = [];
-    newfrom = [];
+    suggestionWidgets = [];
     //developer.log(result.length.toString());
     if (result.length != 0) {
       for (i = 0; i < result.length; i++) {
@@ -339,13 +288,13 @@ class _MyFromBoxState extends State<myFromBox> {
               state: result[i]["state"]));
         });
       }
-      newfrom = [];
+      suggestionWidgets = [];
 
       //developer.log(fromolist.toString());
       for (i = 0; i < result.length; i++) {
         //developer.log(toolist[i].stopname);
         setState(() {
-          newfrom.add(toolist[i].stopid != 0
+          suggestionWidgets.add(toolist[i].stopid != 0
               ? Container(
                   //color: Colors.red,
                   child: Container(
@@ -401,36 +350,15 @@ class _MyFromBoxState extends State<myFromBox> {
       //developer.log(xx);
     } else {
       setState(() {
-        newfrom = [];
+        suggestionWidgets = [];
         developer.log("NO RESULT");
-        newfrom.add(Center(
+        suggestionWidgets.add(Center(
             child: Text("No result found",
                 style: GoogleFonts.ptSansCaption(
                     fontSize: 17,
                     color: Colors.black45,
                     fontWeight: FontWeight.w700))));
       });
-    }
-  }
-
-  void closetobox() async {
-    if (istofocused == 1) {
-      setState(() {
-        istofocused1 = 0;
-        istofocused = 0;
-      });
-      while (items.length > -1) {
-        if (items.length < 1) return;
-
-        listKeyTo.currentState?.removeItem(
-            items.length - 1, (_, animation) => slideIt(context, 0, animation),
-            duration: const Duration(milliseconds: 1));
-        setState(() {
-          items.removeAt(0);
-        });
-      }
-      items = [];
-      counter = 0;
     }
   }
 
@@ -528,23 +456,6 @@ class _MyFromBoxState extends State<myFromBox> {
       });
     }
 
-/*
-    closests[0] = " (LOADING)";
-    var url = Uri.parse(
-        "https://nirmalpoonattu.tk/api/findclosestjson.php");
-    var response = await http
-        .post(url, body: {"gx": lat.toString(), "gy": lng.toString()});
-developer.log(response.body);
-    setState(() {
-      jsonClosests = jsonDecode(response.body);
-      jsonClosestsTo = jsonDecode(response.body);
-      fromname = "" + jsonClosests[0]["stopname"];
-      fromval = jsonClosests[0]["stopid"];
-      toname = "" + jsonClosests[1]["stopname"];
-      toval = jsonClosests[1]["stopid"];
-    });
-    return ("done");
-    */
     return ("DONE");
   }
 
@@ -552,8 +463,6 @@ developer.log(response.body);
 
 // FROM BOX START
   Future<String> setFromBoxLocation(double lat, double lng) async {
-    closests[0] = " (LOADING)";
-
     WidgetsFlutterBinding.ensureInitialized();
     final database = openDatabase(
       Path.join(await getDatabasesPath(), 'stopsdatabase.db'),
@@ -565,12 +474,10 @@ developer.log(response.body);
         "select stopid,stopname,placeid, lat, lng from stops order by abs(${presentlat.toString()}-lat)+abs(${presentlong.toString()}-lng) asc limit 20");
 
     setState(() {
-      jsonClosests = result;
-      jsonClosestsTo = result;
-      fromname = "" + jsonClosests[0]["stopname"];
-      fromval = jsonClosests[0]["stopid"];
-      toname = "" + jsonClosests[1]["stopname"];
-      toval = jsonClosests[1]["stopid"];
+      fromname = "" + result[0]["stopname"];
+      fromid = result[0]["stopid"];
+      toname = "" + result[1]["stopname"];
+      toid = result[1]["stopid"];
     });
     return ("done");
   }
@@ -599,6 +506,7 @@ developer.log(response.body);
               ),
             ),
           if (isqueryopen == 0)
+            //TO BOX THAT IS DISPLAYED ON MAP
             AnimatedContainer(
                 curve: Curves.fastOutSlowIn,
                 duration: Duration(milliseconds: 500),
@@ -643,90 +551,122 @@ developer.log(response.body);
                                   )),
                               Expanded(
                                 child: TextField(
+                                  enabled: false,
                                   textInputAction: TextInputAction.next,
-                                  onChanged: (String xx) {
-                                    onToChanged(xx);
-                                  },
                                   controller: myToController,
                                   textCapitalization:
                                       TextCapitalization.characters,
                                   decoration: InputDecoration(
                                       border: InputBorder.none,
                                       hintText: 'WHERE?'),
-                                  onTap: opentobox,
+                                  onTap: () {
+                                    opentobox();
+                                  },
                                 ),
                               ),
                             ],
                           )),
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        closetobox();
-                        FocusScope.of(context).unfocus();
-                      },
-                      child: Container(
-                          color: Colors.white,
-                          height: 40,
-                          width: 40,
-                          child: istofocused == 0
-                              ? SizedBox(width: 5)
-                              : Icon(Icons.arrow_back)),
-                    )
                   ],
                 )),
-          Visibility(
-            visible: istofocused == 0 ? true : false,
-            child: AnimatedContainer(
-                curve: Curves.fastOutSlowIn,
-                duration: Duration(milliseconds: 500),
-                height: isqueryopen == 0 ? 50 : 125,
-                margin: isqueryopen == 1
-                    ? EdgeInsets.fromLTRB(0, 0, 0, 0)
-                    : EdgeInsets.fromLTRB(10, 40, 10, 0),
-                padding: isqueryopen == 0
-                    ? EdgeInsets.fromLTRB(0, 0, 0, 0)
-                    : EdgeInsets.fromLTRB(10, 10, 10, 10),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: isqueryopen == 0
-                      ? BorderRadius.zero
-                      : BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black38,
-                      blurRadius: 17,
-                      offset: const Offset(0, 0),
-                    ),
-                  ],
-                ),
-                child: SingleChildScrollView(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Stack(
-                        children: [
-                          AnimatedContainer(
-                            curve: Curves.fastOutSlowIn,
-                            duration: Duration(milliseconds: 500),
-                            width: MediaQuery.of(context).size.width - 110,
-                            height: 50,
-                            margin: EdgeInsets.only(
-                                top: istofocusednew == 0 ? 0 : 55),
-                            decoration: BoxDecoration(
-                                color: isqueryopen == 0
-                                    ? Colors.white
-                                    : Color.fromRGBO(150, 150, 150, 0.2),
-                                borderRadius: isqueryopen != 0
-                                    ? BorderRadius.circular(10)
-                                    : BorderRadius.circular(0)),
-                          ),
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
+          //FROMBOX ON MAP
+          AnimatedContainer(
+              curve: Curves.fastOutSlowIn,
+              duration: Duration(milliseconds: 500),
+              height: isqueryopen == 0 ? 50 : 125,
+              margin: isqueryopen == 1
+                  ? EdgeInsets.fromLTRB(0, 0, 0, 0)
+                  : EdgeInsets.fromLTRB(10, 40, 10, 0),
+              padding: isqueryopen == 0
+                  ? EdgeInsets.fromLTRB(0, 0, 0, 0)
+                  : EdgeInsets.fromLTRB(10, 10, 10, 10),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: isqueryopen == 0
+                    ? BorderRadius.zero
+                    : BorderRadius.circular(14),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black38,
+                    blurRadius: 17,
+                    offset: const Offset(0, 0),
+                  ),
+                ],
+              ),
+              child: SingleChildScrollView(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Stack(
+                      children: [
+                        AnimatedContainer(
+                          curve: Curves.fastOutSlowIn,
+                          duration: Duration(milliseconds: 500),
+                          width: MediaQuery.of(context).size.width - 110,
+                          height: 50,
+                          margin:
+                              EdgeInsets.only(top: istofocused == 0 ? 0 : 55),
+                          decoration: BoxDecoration(
+                              color: isqueryopen == 0
+                                  ? Colors.white
+                                  : Color.fromRGBO(150, 150, 150, 0.2),
+                              borderRadius: isqueryopen != 0
+                                  ? BorderRadius.circular(10)
+                                  : BorderRadius.circular(0)),
+                        ),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                openfrombox();
+                              },
+                              child: AnimatedContainer(
+                                  curve: Curves.fastOutSlowIn,
+                                  duration: Duration(milliseconds: 500),
+                                  width: 290,
+                                  decoration: BoxDecoration(
+                                      borderRadius: isqueryopen != 0
+                                          ? BorderRadius.circular(10)
+                                          : BorderRadius.circular(0)),
+                                  child: Row(
+                                    children: [
+                                      SizedBox(width: 10),
+                                      Icon(
+                                        Icons.my_location,
+                                      ),
+                                      SizedBox(width: 7),
+                                      Text("FROM: ",
+                                          style: TextStyle(
+                                            fontSize: 17,
+                                            color: Colors.black87,
+                                          )),
+                                      Expanded(
+                                        child: TextField(
+                                          focusNode: fromfocusnode,
+                                          textInputAction: TextInputAction.next,
+                                          onChanged: (String xx) {
+                                            onFromChanged(xx);
+                                          },
+                                          controller: myFromController,
+                                          textCapitalization:
+                                              TextCapitalization.characters,
+                                          decoration: InputDecoration(
+                                              border: InputBorder.none,
+                                              hintText: '$fromname'),
+                                          onTap: openfrombox,
+                                        ),
+                                      ),
+                                    ],
+                                  )),
+                            ),
+                            if (isqueryopen == 1) SizedBox(height: 08),
+                            if (isqueryopen == 1)
                               GestureDetector(
                                 onTap: () {
                                   openfrombox();
                                 },
+                                //TOBOX THAT COMES UP WHEN EDITING
                                 child: AnimatedContainer(
                                     curve: Curves.fastOutSlowIn,
                                     duration: Duration(milliseconds: 500),
@@ -739,100 +679,54 @@ developer.log(response.body);
                                       children: [
                                         SizedBox(width: 10),
                                         Icon(
-                                          Icons.my_location,
+                                          Icons.location_on,
                                         ),
                                         SizedBox(width: 7),
-                                        Text("FROM: ",
+                                        Text("TO: ",
                                             style: TextStyle(
                                               fontSize: 17,
                                               color: Colors.black87,
                                             )),
                                         Expanded(
                                           child: TextField(
+                                            focusNode: tofocusnode,
                                             textInputAction:
                                                 TextInputAction.next,
                                             onChanged: (String xx) {
-                                              onFromChanged(xx);
+                                              onToChanged(xx);
                                             },
-                                            controller: myFromController,
+                                            controller: myToController,
                                             textCapitalization:
                                                 TextCapitalization.characters,
                                             decoration: InputDecoration(
                                                 border: InputBorder.none,
-                                                hintText: '$fromname'),
-                                            onTap: openfrombox,
+                                                hintText: 'WHERE?'),
+                                            onTap: movetoto,
                                           ),
                                         ),
                                       ],
                                     )),
                               ),
-                              if (isqueryopen == 1) SizedBox(height: 08),
-                              if (isqueryopen == 1)
-                                GestureDetector(
-                                  onTap: () {
-                                    openfrombox();
-                                  },
-                                  child: AnimatedContainer(
-                                      curve: Curves.fastOutSlowIn,
-                                      duration: Duration(milliseconds: 500),
-                                      width: 290,
-                                      decoration: BoxDecoration(
-                                          borderRadius: isqueryopen != 0
-                                              ? BorderRadius.circular(10)
-                                              : BorderRadius.circular(0)),
-                                      child: Row(
-                                        children: [
-                                          SizedBox(width: 10),
-                                          Icon(
-                                            Icons.location_on,
-                                          ),
-                                          SizedBox(width: 7),
-                                          Text("TO: ",
-                                              style: TextStyle(
-                                                fontSize: 17,
-                                                color: Colors.black87,
-                                              )),
-                                          Expanded(
-                                            child: TextField(
-                                              focusNode: tofocusnode,
-                                              textInputAction:
-                                                  TextInputAction.next,
-                                              onChanged: (String xx) {
-                                                onToChanged(xx);
-                                              },
-                                              controller: myToController,
-                                              textCapitalization:
-                                                  TextCapitalization.characters,
-                                              decoration: InputDecoration(
-                                                  border: InputBorder.none,
-                                                  hintText: 'WHERE?'),
-                                              onTap: movetoto,
-                                            ),
-                                          ),
-                                        ],
-                                      )),
-                                ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          closequerybox();
-                          FocusScope.of(context).unfocus();
-                        },
-                        child: Container(
-                            color: Colors.white,
-                            height: 40,
-                            width: 40,
-                            child: isqueryopen == 0
-                                ? SizedBox(width: 5)
-                                : Icon(Icons.arrow_back)),
-                      )
-                    ],
-                  ),
-                )),
-          ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        closequerybox();
+                        FocusScope.of(context).unfocus();
+                      },
+                      child: Container(
+                          color: Colors.white,
+                          height: 40,
+                          width: 40,
+                          child: isqueryopen == 0
+                              ? SizedBox(width: 5)
+                              : Icon(Icons.arrow_back)),
+                    )
+                  ],
+                ),
+              )),
         ],
       ),
     );
