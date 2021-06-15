@@ -224,12 +224,13 @@ selectionComplete(fromid, toid);
   }
 
   void closequerybox() async {
-    isqueryopen = 0;
-    if (isfromfocused == 1) {
+    
       setState(() {
+        isqueryopen = 0;
         isfromfocused = 0;
+        istofocused=0;
       });
-    }
+    
   }
 
   void movetoto() {
