@@ -19,7 +19,7 @@ import 'myGlobals.dart';
 import 'dart:developer' as developer;
 import 'myCards.dart';
 late _MyBackgroundMapState backgroundMapState;
-late GoogleMapController myMapController;
+
 
 
 
@@ -61,7 +61,8 @@ void initState() {
       myLocationEnabled: true,
       myLocationButtonEnabled: true,
       mapType: MapType.normal,
-      markers: Set.from(allMarkers),
+      markers: markers,
+      polylines: polylines,
     );
   }
 

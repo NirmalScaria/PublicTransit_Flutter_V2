@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'package:google_fonts/google_fonts.dart';
 import 'myFromandTo.dart';
 import 'myHome.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 var suggestionWidgets=<Widget>[];
 var isqueryopen=0;
 var location = new Location();
@@ -19,7 +20,7 @@ var isfromfocused = 0;
 var istofocused=0;
 var fromtyped = "";
 var totyped="";
-
+var iscardvisible=1;
 StopObject fromselectedobject = StopObject();
 StopObject toselectedobject = StopObject();
 
@@ -37,6 +38,16 @@ var myToController = TextEditingController();
 final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
 
 final GlobalKey<AnimatedListState> listKeyTo = GlobalKey<AnimatedListState>();
+
+//VARIABLES for Map
+
+// this set will hold my markers
+late GoogleMapController myMapController;
+Set<Marker> markers = {};
+Set<Polyline> polylines = {};
+List<LatLng> polylineCoordinates = [];
+PolylinePoints polylinePoints = PolylinePoints();
+
 
 class StopObject{
   final double lat;

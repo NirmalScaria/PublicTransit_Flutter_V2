@@ -8,19 +8,21 @@ import 'dart:convert';
 import 'myGlobals.dart';
 import 'myAutoSuggestions.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
-
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'dart:async';
-
+import 'dart:math';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:path/path.dart' as Path;
 import 'package:sqflite/sqflite.dart';
 import 'package:flutter/widgets.dart';
+import 'package:maps_curved_line/maps_curved_line.dart';
 
 var fromname = " WHERE?";
 var toname = "WHERE TO?";
 late _MyFromBoxState fromBoxState;
 late FocusNode fromfocusnode;
 late FocusNode tofocusnode;
+var isrotating=0;
 
 class myFromBox extends StatefulWidget {
   @override
@@ -49,6 +51,7 @@ class _MyFromBoxState extends State<myFromBox> {
   }
 
   void openfrombox() async {
+    isrotating=0;
     isqueryopen = 1;
     istofocused = 0;
     if (isfromfocused == 0) {
@@ -58,20 +61,129 @@ class _MyFromBoxState extends State<myFromBox> {
       onFromChanged(fromtyped);
 
       fromfocusnode.requestFocus();
-          myFromController.selection = TextSelection.fromPosition(TextPosition(offset: myFromController.text.length));
-
+      myFromController.selection = TextSelection.fromPosition(
+          TextPosition(offset: myFromController.text.length));
     }
   }
 
-  void selectionComplete(int fromstopid, int tostopid) {}
+  void selectionComplete(StopObject fromStopObject, StopObject toStopObject) async {
+    developer.log("LATLNG");
+    developer.log(fromStopObject.lat.toString());
+    developer.log(fromStopObject.lng.toString());
+    developer.log(toStopObject.lat.toString());
+    developer.log(toStopObject.lng.toString());
+    closequerybox();
 
+    /*
+List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(
+         "AIzaSyBhtyzHMMICP1n4YnTPHG_W-09hua7nzXw",
+         fromStopObject.lat, 
+         fromStopObject.lng,
+         toStopObject.lat, 
+         toStopObject.lng);
+*/
+    List<PointLatLng> result = [
+      PointLatLng(fromStopObject.lat, fromStopObject.lng),
+      PointLatLng(toStopObject.lat, toStopObject.lng)
+    ];
+    if (result.isNotEmpty) {
+      result.forEach((PointLatLng point) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+      });
+    }
+    setState(() {
+      iscardvisible = 0;
+      Polyline polyline = Polyline(
+        width: 4,
+        zIndex: 500,
+        startCap: Cap.roundCap,
+        endCap: Cap.roundCap,
+        polylineId: PolylineId("poly"),
+        color: Colors.blue.shade300,
+        points: [
+            LatLng(fromStopObject.lat, fromStopObject.lng),
+            LatLng(toStopObject.lat, toStopObject.lng)],
+      );
+      Polyline polyline2 = Polyline(
+        width: 10,
+        zIndex: 500,
+        startCap: Cap.roundCap,
+        endCap: Cap.roundCap,
+        polylineId: PolylineId("poly2"),
+        color: Colors.blue.shade100,
+        points: [
+            LatLng(fromStopObject.lat, fromStopObject.lng),
+            LatLng(toStopObject.lat, toStopObject.lng)],
+      );
+      polylines.clear();
+
+      polylines.add(polyline2);
+      polylines.add(polyline);
+    });
+    FocusScope.of(context).unfocus();
+    double airdistance = sqrt(pow(fromStopObject.lat - toStopObject.lat, 2) +
+        pow(fromStopObject.lng - toStopObject.lng, 2));
+    developer.log("AIR DISTANCe");
+    developer.log(airdistance.toString());
+    double zoomlevel = 13;
+    if (airdistance > 0.04) zoomlevel = 12;
+    if (airdistance > 0.08) zoomlevel = 11;
+    if (airdistance > 0.16) zoomlevel = 10;
+    if (airdistance > 0.32) zoomlevel = 9;
+    if (airdistance > 0.64) zoomlevel = 8;
+    if (airdistance > 1.28) zoomlevel = 7;
+    if (airdistance > 2.56) zoomlevel = 6;
+    if (airdistance > 5.12) zoomlevel = 5;
+    if (airdistance > 10.24) zoomlevel = 4;
+    zoomlevel = zoomlevel + 0.4;
+    markers.clear();
+    markers.add(Marker(
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+        alpha: 0.9,
+        markerId: MarkerId("origin"),
+        position: LatLng(fromStopObject.lat, fromStopObject.lng)));
+    markers.add(Marker(
+      infoWindow: InfoWindow(title:"DEST", snippet: "Dest"),
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+        alpha: 0.9,
+        markerId: MarkerId("dest"),
+        position: LatLng(toStopObject.lat, toStopObject.lng)));
+        
+    myMapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+        target: LatLng(
+          (fromStopObject.lat + toStopObject.lat) / 2 ,
+          (fromStopObject.lng + toStopObject.lng) / 2,
+        ),
+        bearing:0,
+        tilt:89,
+        zoom: zoomlevel)));
+        await Future.delayed(Duration(milliseconds: 1500));
+        isrotating=1;
+        keeprotating(fromStopObject, toStopObject, zoomlevel);
+  }
+
+Future<void> keeprotating(StopObject fromStopObject, StopObject toStopObject, double zoomlevel) async {
+  for(int i=0;i<1000000&&isrotating==1;i++){
+    myMapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+        target: LatLng(
+          (fromStopObject.lat + toStopObject.lat) / 2,
+          (fromStopObject.lng + toStopObject.lng) / 2,
+        ),
+        bearing:i*0.25,
+        tilt:89,
+        zoom: zoomlevel)));
+        await Future.delayed(Duration(milliseconds: 50));
+  }
+}
+  
   void selectedOrigin(var id) {
     fromselectedobject = fromolist[id];
     developer.log("SeLeCted from:");
     developer.log(fromolist[id].stopname);
     fromtyped = fromolist[id].stopname;
     myFromController.text = fromolist[id].stopname;
-        myFromController.selection = TextSelection.fromPosition(TextPosition(offset: myFromController.text.length));
+    myFromController.selection = TextSelection.fromPosition(
+        TextPosition(offset: myFromController.text.length));
 
     fromid = fromolist[id].stopid;
     if (fromid == toid) {
@@ -83,9 +195,12 @@ class _MyFromBoxState extends State<myFromBox> {
       if (toid == 0) {
         movetoto();
       } else {
-
-      developer.log("SELECTION COMPLETED");
-        selectionComplete(fromid, toid);
+        developer.log("SELECTION COMPLETED");
+        developer.log("ORIIGIN IS:");
+        developer.log(fromselectedobject.stopname);
+        developer.log("DEST is;");
+        developer.log(toselectedobject.stopname);
+        selectionComplete(fromselectedobject, toselectedobject);
       }
     }
   }
@@ -96,27 +211,30 @@ class _MyFromBoxState extends State<myFromBox> {
     developer.log(toolist[id].stopname);
     totyped = toolist[id].stopname;
     myToController.text = toolist[id].stopname;
-        myToController.selection = TextSelection.fromPosition(TextPosition(offset: myToController.text.length));
+    myToController.selection = TextSelection.fromPosition(
+        TextPosition(offset: myToController.text.length));
 
     toid = toolist[id].stopid;
     if (toid == fromid) {
       fromid = 0;
       fromtyped = "";
-      myFromController.text="";
-      fromname="WHERE?";
+      myFromController.text = "";
+      fromname = "WHERE?";
       openfrombox();
-    }
-    else {
-    if(fromid==0){
-      fromtyped="";
-      myFromController.text="";
-      fromname="WHERE?";
-      openfrombox();
-    }
-    else{
-      developer.log("SELECTION COMPLETED");
-selectionComplete(fromid, toid);
-    }
+    } else {
+      if (fromid == 0) {
+        fromtyped = "";
+        myFromController.text = "";
+        fromname = "WHERE?";
+        openfrombox();
+      } else {
+        developer.log("SELECTION COMPLETED");
+        developer.log("ORIIGIN IS:");
+        developer.log(fromselectedobject.stopname);
+        developer.log("DEST is;");
+        developer.log(toselectedobject.stopname);
+        selectionComplete(fromselectedobject, toselectedobject);
+      }
     }
   }
 
@@ -224,13 +342,11 @@ selectionComplete(fromid, toid);
   }
 
   void closequerybox() async {
-    
-      setState(() {
-        isqueryopen = 0;
-        isfromfocused = 0;
-        istofocused=0;
-      });
-    
+    setState(() {
+      isqueryopen = 0;
+      isfromfocused = 0;
+      istofocused = 0;
+    });
   }
 
   void movetoto() {
@@ -242,11 +358,12 @@ selectionComplete(fromid, toid);
     }
     onToChanged(totyped);
     tofocusnode.requestFocus();
-    myToController.selection = TextSelection.fromPosition(TextPosition(offset: myToController.text.length));
-
+    myToController.selection = TextSelection.fromPosition(
+        TextPosition(offset: myToController.text.length));
   }
 
   void opentobox() async {
+    isrotating=0;
     if (istofocused == 0) {
       setState(() {
         istofocused = 1;
@@ -255,8 +372,8 @@ selectionComplete(fromid, toid);
       onToChanged(totyped);
     }
     tofocusnode.requestFocus();
-    myToController.selection = TextSelection.fromPosition(TextPosition(offset: myToController.text.length));
-
+    myToController.selection = TextSelection.fromPosition(
+        TextPosition(offset: myToController.text.length));
   }
 
   void onToChanged(String xx) async {
@@ -477,8 +594,6 @@ selectionComplete(fromid, toid);
     setState(() {
       fromname = "" + result[0]["stopname"];
       fromid = result[0]["stopid"];
-      toname = "" + result[1]["stopname"];
-      toid = result[1]["stopid"];
     });
     return ("done");
   }
