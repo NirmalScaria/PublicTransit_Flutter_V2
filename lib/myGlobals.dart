@@ -21,6 +21,9 @@ var istofocused=0;
 var fromtyped = "";
 var totyped="";
 var iscardvisible=1;
+var appstatus = "default";
+var isfromandtovisible=1;
+var departorreach="depart";
 StopObject fromselectedobject = StopObject();
 StopObject toselectedobject = StopObject();
 

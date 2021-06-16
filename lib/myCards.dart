@@ -46,7 +46,7 @@ class _MyCardState extends State<MyCard> {
   @override
   Widget build(BuildContext context) {
     return Visibility(
-      visible: iscardvisible==1 ? true : true,
+      visible: iscardvisible==1 ? true : false,
           child: Positioned(
         left: -150,
         width: MediaQuery.of(context).size.width + 150,

@@ -8,6 +8,8 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'myGlobals.dart';
 import 'package:http/http.dart' as http;
 import 'dart:developer' as developer;
+import 'mySelectionPreview.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -33,6 +35,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     myMainInit();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -43,8 +46,9 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Stack(
           children: [
             myBackgroundMap(),
-             MyCard(),
+            MyCard(),
             myFromBox(),
+            SelectionPreview(),
           ],
         ),
       ),

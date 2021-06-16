@@ -1,3 +1,4 @@
+import 'package:busmap2/myHome.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
@@ -16,14 +17,16 @@ import 'package:path/path.dart' as Path;
 import 'package:sqflite/sqflite.dart';
 import 'package:flutter/widgets.dart';
 import 'package:maps_curved_line/maps_curved_line.dart';
-
+import 'mySelectionPreview.dart';
+import 'myCards.dart';
 var fromname = " WHERE?";
 var toname = "WHERE TO?";
+var bearing=0.0;
 late _MyFromBoxState fromBoxState;
 late FocusNode fromfocusnode;
 late FocusNode tofocusnode;
 var isrotating=0;
-
+    double zoomlevel = 13;
 class myFromBox extends StatefulWidget {
   @override
   _MyFromBoxState createState() {
@@ -51,11 +54,13 @@ class _MyFromBoxState extends State<myFromBox> {
   }
 
   void openfrombox() async {
+  
     isrotating=0;
     isqueryopen = 1;
     istofocused = 0;
     if (isfromfocused == 0) {
       setState(() {
+        appstatus="fromdropdown";
         isfromfocused = 1;
       });
       onFromChanged(fromtyped);
@@ -86,12 +91,13 @@ List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(
       PointLatLng(fromStopObject.lat, fromStopObject.lng),
       PointLatLng(toStopObject.lat, toStopObject.lng)
     ];
-    if (result.isNotEmpty) {
       result.forEach((PointLatLng point) {
         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
       });
-    }
+    
     setState(() {
+          appstatus="selectionpreview";
+      isfromandtovisible=0;
       iscardvisible = 0;
       Polyline polyline = Polyline(
         width: 4,
@@ -125,7 +131,7 @@ List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(
         pow(fromStopObject.lng - toStopObject.lng, 2));
     developer.log("AIR DISTANCe");
     developer.log(airdistance.toString());
-    double zoomlevel = 13;
+zoomlevel=13;
     if (airdistance > 0.04) zoomlevel = 12;
     if (airdistance > 0.08) zoomlevel = 11;
     if (airdistance > 0.16) zoomlevel = 10;
@@ -151,28 +157,87 @@ List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(
         
     myMapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
         target: LatLng(
-          (fromStopObject.lat + toStopObject.lat) / 2 ,
+          (fromStopObject.lat + toStopObject.lat) / 2 - (0.05 * pow(2,12.4-zoomlevel)),
           (fromStopObject.lng + toStopObject.lng) / 2,
         ),
         bearing:0,
         tilt:89,
         zoom: zoomlevel)));
+        developer.log("zoomlevel: $zoomlevel");
         await Future.delayed(Duration(milliseconds: 1500));
         isrotating=1;
         keeprotating(fromStopObject, toStopObject, zoomlevel);
+        keepmoving(fromStopObject, toStopObject, zoomlevel);
+        
   }
 
 Future<void> keeprotating(StopObject fromStopObject, StopObject toStopObject, double zoomlevel) async {
+
   for(int i=0;i<1000000&&isrotating==1;i++){
+
+    bearing = i*-0.31;
     myMapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
         target: LatLng(
-          (fromStopObject.lat + toStopObject.lat) / 2,
-          (fromStopObject.lng + toStopObject.lng) / 2,
+          (fromStopObject.lat + toStopObject.lat) / 2 -0.05*cos(bearing*3.1415926535897932/180)* pow(2,12.4-zoomlevel),
+          (fromStopObject.lng + toStopObject.lng) / 2 -0.05 * sin(bearing*3.1415926535897932/180)* pow(2,12.4-zoomlevel),
         ),
-        bearing:i*-0.25,
+        bearing:bearing,
         tilt:89,
         zoom: zoomlevel)));
-        await Future.delayed(Duration(milliseconds: 50));
+
+
+      
+        await Future.delayed(Duration(milliseconds: 300));
+
+  }
+}
+
+Future<void> keepmoving(StopObject fromStopObject, StopObject toStopObject, double zoomlevel) async {
+  double perc=0;
+  double perc2=0.05;
+  for(int i=0;isrotating==1;i++){
+    if(perc>1){
+        perc=perc-1;
+      }
+      else{
+        perc=perc+0.008;
+      }
+      if(perc2>1){
+        perc2=perc2-1;
+      }
+      else{
+        perc2+=0.008;
+      }
+
+
+        Polyline polyline3 = Polyline(
+        width: 6,
+        zIndex: 500,
+        startCap: Cap.roundCap,
+        endCap: Cap.roundCap,
+        polylineId: PolylineId("poly3"),
+        color: Colors.red.shade400,
+        points: [
+            LatLng(fromStopObject.lat+(toStopObject.lat-fromselectedobject.lat)*perc, fromStopObject.lng+(toStopObject.lng-fromselectedobject.lng)*perc),
+            LatLng(fromStopObject.lat+(toStopObject.lat-fromselectedobject.lat)*(perc2<perc?1:perc2), fromStopObject.lng+(toStopObject.lng-fromselectedobject.lng)*(perc2<perc?1:perc2))],
+      );
+      
+      backgroundMapState.setState(() {
+
+
+      polylines.add(polyline3);
+        
+      
+      });
+      
+        await Future.delayed(Duration(milliseconds: 30));
+        backgroundMapState.setState(() {
+        if(perc2<=1){
+        if(perc<perc2){
+
+      polylines.remove(polyline3);        }
+      }
+      });
   }
 }
   
@@ -343,10 +408,48 @@ Future<void> keeprotating(StopObject fromStopObject, StopObject toStopObject, do
 
   void closequerybox() async {
     setState(() {
+      iscardvisible=1;
+      isfromandtovisible=1;
+      appstatus="default";
       isqueryopen = 0;
       isfromfocused = 0;
       istofocused = 0;
     });
+    selectionPreviewState.setState(() {
+      appstatus="default";
+    });
+    cardState.setState((){
+iscardvisible=1;
+    });
+  }
+
+  void closeselectionpreview() async {
+    developer.log("Closing preview");
+    setState(() {
+      iscardvisible=1;
+      isfromandtovisible=1;
+      appstatus="default";
+      isqueryopen = 0;
+      isfromfocused = 0;
+      istofocused = 0;
+      isrotating=0;
+      markers.clear();
+      polylines.clear();
+    });
+    selectionPreviewState.setState(() {
+      appstatus="default";
+    });
+    cardState.setState((){
+iscardvisible=1;
+    });
+    myMapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+        target: LatLng(
+          (fromselectedobject.lat + toselectedobject.lat) / 2 ,
+          (fromselectedobject.lng + toselectedobject.lng) / 2,
+        ),
+        bearing:0,
+        tilt:0,
+        zoom: zoomlevel-1.1)));
   }
 
   void movetoto() {
@@ -363,9 +466,11 @@ Future<void> keeprotating(StopObject fromStopObject, StopObject toStopObject, do
   }
 
   void opentobox() async {
+
     isrotating=0;
     if (istofocused == 0) {
       setState(() {
+        appstatus="openfrombox";
         istofocused = 1;
         isqueryopen = 1;
       });
@@ -602,7 +707,7 @@ Future<void> keeprotating(StopObject fromStopObject, StopObject toStopObject, do
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.fromLTRB(20, 60, 20, 0),
-      child: Stack(
+      child: isfromandtovisible==1 ? Stack(
         children: [
           NewFromSuggestionsBox(),
           if (isqueryopen == 0)
@@ -844,7 +949,7 @@ Future<void> keeprotating(StopObject fromStopObject, StopObject toStopObject, do
                 ),
               )),
         ],
-      ),
+      ) : SizedBox()
     );
   }
 }
