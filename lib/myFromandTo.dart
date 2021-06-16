@@ -19,14 +19,16 @@ import 'package:flutter/widgets.dart';
 import 'package:maps_curved_line/maps_curved_line.dart';
 import 'mySelectionPreview.dart';
 import 'myCards.dart';
+
 var fromname = " WHERE?";
 var toname = "WHERE TO?";
-var bearing=0.0;
+var bearing = 0.0;
 late _MyFromBoxState fromBoxState;
 late FocusNode fromfocusnode;
 late FocusNode tofocusnode;
-var isrotating=0;
-    double zoomlevel = 13;
+var isrotating = 0;
+double zoomlevel = 13;
+
 class myFromBox extends StatefulWidget {
   @override
   _MyFromBoxState createState() {
@@ -54,13 +56,12 @@ class _MyFromBoxState extends State<myFromBox> {
   }
 
   void openfrombox() async {
-  
-    isrotating=0;
+    isrotating = 0;
     isqueryopen = 1;
     istofocused = 0;
     if (isfromfocused == 0) {
       setState(() {
-        appstatus="fromdropdown";
+        appstatus = "fromdropdown";
         isfromfocused = 1;
       });
       onFromChanged(fromtyped);
@@ -71,7 +72,8 @@ class _MyFromBoxState extends State<myFromBox> {
     }
   }
 
-  void selectionComplete(StopObject fromStopObject, StopObject toStopObject) async {
+  void selectionComplete(
+      StopObject fromStopObject, StopObject toStopObject) async {
     developer.log("LATLNG");
     developer.log(fromStopObject.lat.toString());
     developer.log(fromStopObject.lng.toString());
@@ -91,13 +93,13 @@ List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(
       PointLatLng(fromStopObject.lat, fromStopObject.lng),
       PointLatLng(toStopObject.lat, toStopObject.lng)
     ];
-      result.forEach((PointLatLng point) {
-        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
-      });
-    
+    result.forEach((PointLatLng point) {
+      polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+    });
+
     setState(() {
-          appstatus="selectionpreview";
-      isfromandtovisible=0;
+      appstatus = "selectionpreview";
+      isfromandtovisible = 0;
       iscardvisible = 0;
       Polyline polyline = Polyline(
         width: 4,
@@ -107,8 +109,9 @@ List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(
         polylineId: PolylineId("poly"),
         color: Colors.blue.shade300,
         points: [
-            LatLng(fromStopObject.lat, fromStopObject.lng),
-            LatLng(toStopObject.lat, toStopObject.lng)],
+          LatLng(fromStopObject.lat, fromStopObject.lng),
+          LatLng(toStopObject.lat, toStopObject.lng)
+        ],
       );
       Polyline polyline2 = Polyline(
         width: 10,
@@ -118,8 +121,9 @@ List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(
         polylineId: PolylineId("poly2"),
         color: Colors.blue.shade100,
         points: [
-            LatLng(fromStopObject.lat, fromStopObject.lng),
-            LatLng(toStopObject.lat, toStopObject.lng)],
+          LatLng(fromStopObject.lat, fromStopObject.lng),
+          LatLng(toStopObject.lat, toStopObject.lng)
+        ],
       );
       polylines.clear();
 
@@ -131,7 +135,7 @@ List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(
         pow(fromStopObject.lng - toStopObject.lng, 2));
     developer.log("AIR DISTANCe");
     developer.log(airdistance.toString());
-zoomlevel=13;
+    zoomlevel = 13;
     if (airdistance > 0.04) zoomlevel = 12;
     if (airdistance > 0.08) zoomlevel = 11;
     if (airdistance > 0.16) zoomlevel = 10;
@@ -149,98 +153,106 @@ zoomlevel=13;
         markerId: MarkerId("origin"),
         position: LatLng(fromStopObject.lat, fromStopObject.lng)));
     markers.add(Marker(
-      infoWindow: InfoWindow(title:"DEST", snippet: "Dest"),
+        infoWindow: InfoWindow(title: "DEST", snippet: "Dest"),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
         alpha: 0.9,
         markerId: MarkerId("dest"),
         position: LatLng(toStopObject.lat, toStopObject.lng)));
-        
+
     myMapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
         target: LatLng(
-          (fromStopObject.lat + toStopObject.lat) / 2 - (0.05 * pow(2,12.4-zoomlevel)),
+          (fromStopObject.lat + toStopObject.lat) / 2 -
+              (0.05 * pow(2, 12.4 - zoomlevel)),
           (fromStopObject.lng + toStopObject.lng) / 2,
         ),
-        bearing:0,
-        tilt:89,
+        bearing: 0,
+        tilt: 89,
         zoom: zoomlevel)));
-        developer.log("zoomlevel: $zoomlevel");
-        await Future.delayed(Duration(milliseconds: 1500));
-        isrotating=1;
-        keeprotating(fromStopObject, toStopObject, zoomlevel);
-        keepmoving(fromStopObject, toStopObject, zoomlevel);
-        
+    developer.log("zoomlevel: $zoomlevel");
+    await Future.delayed(Duration(milliseconds: 1500));
+    isrotating = 1;
+    keeprotating(fromStopObject, toStopObject, zoomlevel);
+    keepmoving(fromStopObject, toStopObject, zoomlevel);
   }
 
-Future<void> keeprotating(StopObject fromStopObject, StopObject toStopObject, double zoomlevel) async {
+  Future<void> keeprotating(StopObject fromStopObject, StopObject toStopObject,
+      double zoomlevel) async {
+    for (int i = 0; i < 1000000 && isrotating == 1; i++) {
+      bearing = i * -0.31;
+      myMapController
+          .animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+              target: LatLng(
+                (fromStopObject.lat + toStopObject.lat) / 2 -
+                    0.05 *
+                        cos(bearing * 3.1415926535897932 / 180) *
+                        pow(2, 12.4 - zoomlevel),
+                (fromStopObject.lng + toStopObject.lng) / 2 -
+                    0.05 *
+                        sin(bearing * 3.1415926535897932 / 180) *
+                        pow(2, 12.4 - zoomlevel),
+              ),
+              bearing: bearing,
+              tilt: 89,
+              zoom: zoomlevel)));
 
-  for(int i=0;i<1000000&&isrotating==1;i++){
-
-    bearing = i*-0.31;
-    myMapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-        target: LatLng(
-          (fromStopObject.lat + toStopObject.lat) / 2 -0.05*cos(bearing*3.1415926535897932/180)* pow(2,12.4-zoomlevel),
-          (fromStopObject.lng + toStopObject.lng) / 2 -0.05 * sin(bearing*3.1415926535897932/180)* pow(2,12.4-zoomlevel),
-        ),
-        bearing:bearing,
-        tilt:89,
-        zoom: zoomlevel)));
-
-
-      
-        await Future.delayed(Duration(milliseconds: 300));
-
+      await Future.delayed(Duration(milliseconds: 300));
+    }
   }
-}
 
-Future<void> keepmoving(StopObject fromStopObject, StopObject toStopObject, double zoomlevel) async {
-  double perc=0;
-  double perc2=0.05;
-  for(int i=0;isrotating==1;i++){
-    if(perc>1){
-        perc=perc-1;
+  Future<void> keepmoving(StopObject fromStopObject, StopObject toStopObject,
+      double zoomlevel) async {
+    double perc = 0;
+    double perc2 = 0.05;
+    for (int i = 0; isrotating == 1; i++) {
+      if (perc > 1) {
+        perc = perc - 1;
+      } else {
+        perc = perc + 0.008;
       }
-      else{
-        perc=perc+0.008;
-      }
-      if(perc2>1){
-        perc2=perc2-1;
-      }
-      else{
-        perc2+=0.008;
+      if (perc2 > 1) {
+        perc2 = perc2 - 1;
+      } else {
+        perc2 += 0.008;
       }
 
-
-        Polyline polyline3 = Polyline(
+      Polyline polyline3 = Polyline(
         width: 6,
         zIndex: 500,
         startCap: Cap.roundCap,
         endCap: Cap.roundCap,
         polylineId: PolylineId("poly3"),
-        color: Colors.red.shade400,
+        color: Colors.blue.shade700,
         points: [
-            LatLng(fromStopObject.lat+(toStopObject.lat-fromselectedobject.lat)*perc, fromStopObject.lng+(toStopObject.lng-fromselectedobject.lng)*perc),
-            LatLng(fromStopObject.lat+(toStopObject.lat-fromselectedobject.lat)*(perc2<perc?1:perc2), fromStopObject.lng+(toStopObject.lng-fromselectedobject.lng)*(perc2<perc?1:perc2))],
+          LatLng(
+              fromStopObject.lat +
+                  (toStopObject.lat - fromselectedobject.lat) * perc,
+              fromStopObject.lng +
+                  (toStopObject.lng - fromselectedobject.lng) * perc),
+          LatLng(
+              fromStopObject.lat +
+                  (toStopObject.lat - fromselectedobject.lat) *
+                      (perc2 < perc ? 1 : perc2),
+              fromStopObject.lng +
+                  (toStopObject.lng - fromselectedobject.lng) *
+                      (perc2 < perc ? 1 : perc2))
+        ],
       );
-      
+
       backgroundMapState.setState(() {
-
-
-      polylines.add(polyline3);
-        
-      
+        polylines.add(polyline3);
       });
-      
-        await Future.delayed(Duration(milliseconds: 30));
-        backgroundMapState.setState(() {
-        if(perc2<=1){
-        if(perc<perc2){
 
-      polylines.remove(polyline3);        }
-      }
+      await Future.delayed(Duration(milliseconds: 30));
+      backgroundMapState.setState(() {
+        if (perc2 <= 1) {
+          if (perc < perc2) {
+            polylines.remove(polyline3);
+          }
+        }
       });
+    }
   }
-}
-  
+
   void selectedOrigin(var id) {
     fromselectedobject = fromolist[id];
     developer.log("SeLeCted from:");
@@ -408,48 +420,48 @@ Future<void> keepmoving(StopObject fromStopObject, StopObject toStopObject, doub
 
   void closequerybox() async {
     setState(() {
-      iscardvisible=1;
-      isfromandtovisible=1;
-      appstatus="default";
+      iscardvisible = 1;
+      isfromandtovisible = 1;
+      appstatus = "default";
       isqueryopen = 0;
       isfromfocused = 0;
       istofocused = 0;
     });
     selectionPreviewState.setState(() {
-      appstatus="default";
+      appstatus = "default";
     });
-    cardState.setState((){
-iscardvisible=1;
+    cardState.setState(() {
+      iscardvisible = 1;
     });
   }
 
   void closeselectionpreview() async {
     developer.log("Closing preview");
     setState(() {
-      iscardvisible=1;
-      isfromandtovisible=1;
-      appstatus="default";
+      iscardvisible = 1;
+      isfromandtovisible = 1;
+      appstatus = "default";
       isqueryopen = 0;
       isfromfocused = 0;
       istofocused = 0;
-      isrotating=0;
+      isrotating = 0;
       markers.clear();
       polylines.clear();
     });
     selectionPreviewState.setState(() {
-      appstatus="default";
+      appstatus = "default";
     });
-    cardState.setState((){
-iscardvisible=1;
+    cardState.setState(() {
+      iscardvisible = 1;
     });
     myMapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
         target: LatLng(
-          (fromselectedobject.lat + toselectedobject.lat) / 2 ,
+          (fromselectedobject.lat + toselectedobject.lat) / 2,
           (fromselectedobject.lng + toselectedobject.lng) / 2,
         ),
-        bearing:0,
-        tilt:0,
-        zoom: zoomlevel-1.1)));
+        bearing: 0,
+        tilt: 0,
+        zoom: zoomlevel - 1.1)));
   }
 
   void movetoto() {
@@ -466,11 +478,10 @@ iscardvisible=1;
   }
 
   void opentobox() async {
-
-    isrotating=0;
+    isrotating = 0;
     if (istofocused == 0) {
       setState(() {
-        appstatus="openfrombox";
+        appstatus = "openfrombox";
         istofocused = 1;
         isqueryopen = 1;
       });
@@ -706,250 +717,257 @@ iscardvisible=1;
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(20, 60, 20, 0),
-      child: isfromandtovisible==1 ? Stack(
-        children: [
-          NewFromSuggestionsBox(),
-          if (isqueryopen == 0)
-            Container(
-              alignment: Alignment(0, -1),
-              padding: EdgeInsets.only(top: 100),
-              child: DecoratedIcon(
-                Icons.more_vert,
-                color: Colors.white,
-                size: 80,
-                shadows: [
-                  BoxShadow(
-                    blurRadius: 12.0,
-                    color: Colors.black54,
-                  ),
-                ],
-              ),
-            ),
-          if (isqueryopen == 0)
-            //TO BOX THAT IS DISPLAYED ON MAP
-            AnimatedContainer(
-                curve: Curves.fastOutSlowIn,
-                duration: Duration(milliseconds: 500),
-                margin: EdgeInsets.fromLTRB(10, 190, 10, 0),
-                padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.zero,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black38,
-                      blurRadius: 17,
-                      offset: const Offset(0, 0),
+        padding: EdgeInsets.fromLTRB(20, 60, 20, 0),
+        child: isfromandtovisible == 1
+            ? Stack(
+                children: [
+                  NewFromSuggestionsBox(),
+                  if (isqueryopen == 0)
+                    Container(
+                      alignment: Alignment(0, -1),
+                      padding: EdgeInsets.only(top: 100),
+                      child: DecoratedIcon(
+                        Icons.more_vert,
+                        color: Colors.white,
+                        size: 80,
+                        shadows: [
+                          BoxShadow(
+                            blurRadius: 12.0,
+                            color: Colors.black54,
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        opentobox();
-                      },
-                      child: AnimatedContainer(
-                          curve: Curves.fastOutSlowIn,
-                          duration: Duration(milliseconds: 500),
-                          width: 290,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10)),
-                          child: Row(
-                            children: [
-                              SizedBox(width: 10),
-                              Icon(
-                                Icons.location_on,
-                              ),
-                              SizedBox(width: 7),
-                              Text("TO: ",
-                                  style: TextStyle(
-                                    fontSize: 17,
-                                    color: Colors.black87,
-                                  )),
-                              Expanded(
-                                child: TextField(
-                                  enabled: false,
-                                  textInputAction: TextInputAction.next,
-                                  controller: myToController,
-                                  textCapitalization:
-                                      TextCapitalization.characters,
-                                  decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                      hintText: 'WHERE?'),
-                                  onTap: () {
-                                    opentobox();
-                                  },
-                                ),
-                              ),
-                            ],
-                          )),
-                    ),
-                  ],
-                )),
-          //FROMBOX ON MAP
-          AnimatedContainer(
-              curve: Curves.fastOutSlowIn,
-              duration: Duration(milliseconds: 500),
-              height: isqueryopen == 0 ? 50 : 125,
-              margin: isqueryopen == 1
-                  ? EdgeInsets.fromLTRB(0, 0, 0, 0)
-                  : EdgeInsets.fromLTRB(10, 40, 10, 0),
-              padding: isqueryopen == 0
-                  ? EdgeInsets.fromLTRB(0, 0, 0, 0)
-                  : EdgeInsets.fromLTRB(10, 10, 10, 10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: isqueryopen == 0
-                    ? BorderRadius.zero
-                    : BorderRadius.circular(14),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black38,
-                    blurRadius: 17,
-                    offset: const Offset(0, 0),
-                  ),
-                ],
-              ),
-              child: SingleChildScrollView(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Stack(
-                      children: [
-                        AnimatedContainer(
-                          curve: Curves.fastOutSlowIn,
-                          duration: Duration(milliseconds: 500),
-                          width: MediaQuery.of(context).size.width - 110,
-                          height: 50,
-                          margin:
-                              EdgeInsets.only(top: istofocused == 0 ? 0 : 55),
-                          decoration: BoxDecoration(
-                              color: isqueryopen == 0
-                                  ? Colors.white
-                                  : Color.fromRGBO(150, 150, 150, 0.2),
-                              borderRadius: isqueryopen != 0
-                                  ? BorderRadius.circular(10)
-                                  : BorderRadius.circular(0)),
+                  if (isqueryopen == 0)
+                    //TO BOX THAT IS DISPLAYED ON MAP
+                    AnimatedContainer(
+                        curve: Curves.fastOutSlowIn,
+                        duration: Duration(milliseconds: 500),
+                        margin: EdgeInsets.fromLTRB(10, 190, 10, 0),
+                        padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.zero,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black38,
+                              blurRadius: 17,
+                              offset: const Offset(0, 0),
+                            ),
+                          ],
                         ),
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             GestureDetector(
                               onTap: () {
-                                openfrombox();
+                                opentobox();
                               },
                               child: AnimatedContainer(
                                   curve: Curves.fastOutSlowIn,
                                   duration: Duration(milliseconds: 500),
                                   width: 290,
                                   decoration: BoxDecoration(
-                                      borderRadius: isqueryopen != 0
-                                          ? BorderRadius.circular(10)
-                                          : BorderRadius.circular(0)),
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(10)),
                                   child: Row(
                                     children: [
                                       SizedBox(width: 10),
                                       Icon(
-                                        Icons.my_location,
+                                        Icons.location_on,
                                       ),
                                       SizedBox(width: 7),
-                                      Text("FROM: ",
+                                      Text("TO: ",
                                           style: TextStyle(
                                             fontSize: 17,
                                             color: Colors.black87,
                                           )),
                                       Expanded(
                                         child: TextField(
-                                          focusNode: fromfocusnode,
+                                          enabled: false,
                                           textInputAction: TextInputAction.next,
-                                          onChanged: (String xx) {
-                                            onFromChanged(xx);
-                                          },
-                                          controller: myFromController,
+                                          controller: myToController,
                                           textCapitalization:
                                               TextCapitalization.characters,
                                           decoration: InputDecoration(
                                               border: InputBorder.none,
-                                              hintText: '$fromname'),
-                                          onTap: openfrombox,
+                                              hintText: 'WHERE?'),
+                                          onTap: () {
+                                            opentobox();
+                                          },
                                         ),
                                       ),
                                     ],
                                   )),
                             ),
-                            if (isqueryopen == 1) SizedBox(height: 08),
-                            if (isqueryopen == 1)
-                              GestureDetector(
-                                onTap: () {
-                                  openfrombox();
-                                },
-                                //TOBOX THAT COMES UP WHEN EDITING
-                                child: AnimatedContainer(
-                                    curve: Curves.fastOutSlowIn,
-                                    duration: Duration(milliseconds: 500),
-                                    width: 290,
-                                    decoration: BoxDecoration(
-                                        borderRadius: isqueryopen != 0
-                                            ? BorderRadius.circular(10)
-                                            : BorderRadius.circular(0)),
-                                    child: Row(
-                                      children: [
-                                        SizedBox(width: 10),
-                                        Icon(
-                                          Icons.location_on,
-                                        ),
-                                        SizedBox(width: 7),
-                                        Text("TO: ",
-                                            style: TextStyle(
-                                              fontSize: 17,
-                                              color: Colors.black87,
+                          ],
+                        )),
+                  //FROMBOX ON MAP
+                  AnimatedContainer(
+                      curve: Curves.fastOutSlowIn,
+                      duration: Duration(milliseconds: 500),
+                      height: isqueryopen == 0 ? 50 : 125,
+                      margin: isqueryopen == 1
+                          ? EdgeInsets.fromLTRB(0, 0, 0, 0)
+                          : EdgeInsets.fromLTRB(10, 40, 10, 0),
+                      padding: isqueryopen == 0
+                          ? EdgeInsets.fromLTRB(0, 0, 0, 0)
+                          : EdgeInsets.fromLTRB(10, 10, 10, 10),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: isqueryopen == 0
+                            ? BorderRadius.zero
+                            : BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black38,
+                            blurRadius: 17,
+                            offset: const Offset(0, 0),
+                          ),
+                        ],
+                      ),
+                      child: SingleChildScrollView(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Stack(
+                              children: [
+                                AnimatedContainer(
+                                  curve: Curves.fastOutSlowIn,
+                                  duration: Duration(milliseconds: 500),
+                                  width:
+                                      MediaQuery.of(context).size.width - 110,
+                                  height: 50,
+                                  margin: EdgeInsets.only(
+                                      top: istofocused == 0 ? 0 : 55),
+                                  decoration: BoxDecoration(
+                                      color: isqueryopen == 0
+                                          ? Colors.white
+                                          : Color.fromRGBO(150, 150, 150, 0.2),
+                                      borderRadius: isqueryopen != 0
+                                          ? BorderRadius.circular(10)
+                                          : BorderRadius.circular(0)),
+                                ),
+                                Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: () {
+                                        openfrombox();
+                                      },
+                                      child: AnimatedContainer(
+                                          curve: Curves.fastOutSlowIn,
+                                          duration: Duration(milliseconds: 500),
+                                          width: 290,
+                                          decoration: BoxDecoration(
+                                              borderRadius: isqueryopen != 0
+                                                  ? BorderRadius.circular(10)
+                                                  : BorderRadius.circular(0)),
+                                          child: Row(
+                                            children: [
+                                              SizedBox(width: 10),
+                                              Icon(
+                                                Icons.my_location,
+                                              ),
+                                              SizedBox(width: 7),
+                                              Text("FROM: ",
+                                                  style: TextStyle(
+                                                    fontSize: 17,
+                                                    color: Colors.black87,
+                                                  )),
+                                              Expanded(
+                                                child: TextField(
+                                                  focusNode: fromfocusnode,
+                                                  textInputAction:
+                                                      TextInputAction.next,
+                                                  onChanged: (String xx) {
+                                                    onFromChanged(xx);
+                                                  },
+                                                  controller: myFromController,
+                                                  textCapitalization:
+                                                      TextCapitalization
+                                                          .characters,
+                                                  decoration: InputDecoration(
+                                                      border: InputBorder.none,
+                                                      hintText: '$fromname'),
+                                                  onTap: openfrombox,
+                                                ),
+                                              ),
+                                            ],
+                                          )),
+                                    ),
+                                    if (isqueryopen == 1) SizedBox(height: 08),
+                                    if (isqueryopen == 1)
+                                      GestureDetector(
+                                        onTap: () {
+                                          openfrombox();
+                                        },
+                                        //TOBOX THAT COMES UP WHEN EDITING
+                                        child: AnimatedContainer(
+                                            curve: Curves.fastOutSlowIn,
+                                            duration:
+                                                Duration(milliseconds: 500),
+                                            width: 290,
+                                            decoration: BoxDecoration(
+                                                borderRadius: isqueryopen != 0
+                                                    ? BorderRadius.circular(10)
+                                                    : BorderRadius.circular(0)),
+                                            child: Row(
+                                              children: [
+                                                SizedBox(width: 10),
+                                                Icon(
+                                                  Icons.location_on,
+                                                ),
+                                                SizedBox(width: 7),
+                                                Text("TO: ",
+                                                    style: TextStyle(
+                                                      fontSize: 17,
+                                                      color: Colors.black87,
+                                                    )),
+                                                Expanded(
+                                                  child: TextField(
+                                                    focusNode: tofocusnode,
+                                                    textInputAction:
+                                                        TextInputAction.next,
+                                                    onChanged: (String xx) {
+                                                      onToChanged(xx);
+                                                    },
+                                                    controller: myToController,
+                                                    textCapitalization:
+                                                        TextCapitalization
+                                                            .characters,
+                                                    decoration: InputDecoration(
+                                                        border:
+                                                            InputBorder.none,
+                                                        hintText: 'WHERE?'),
+                                                    onTap: movetoto,
+                                                  ),
+                                                ),
+                                              ],
                                             )),
-                                        Expanded(
-                                          child: TextField(
-                                            focusNode: tofocusnode,
-                                            textInputAction:
-                                                TextInputAction.next,
-                                            onChanged: (String xx) {
-                                              onToChanged(xx);
-                                            },
-                                            controller: myToController,
-                                            textCapitalization:
-                                                TextCapitalization.characters,
-                                            decoration: InputDecoration(
-                                                border: InputBorder.none,
-                                                hintText: 'WHERE?'),
-                                            onTap: movetoto,
-                                          ),
-                                        ),
-                                      ],
-                                    )),
-                              ),
+                                      ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                closequerybox();
+                                FocusScope.of(context).unfocus();
+                              },
+                              child: Container(
+                                  color: Colors.white,
+                                  height: 40,
+                                  width: 40,
+                                  child: isqueryopen == 0
+                                      ? SizedBox(width: 5)
+                                      : Icon(Icons.arrow_back)),
+                            )
                           ],
                         ),
-                      ],
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        closequerybox();
-                        FocusScope.of(context).unfocus();
-                      },
-                      child: Container(
-                          color: Colors.white,
-                          height: 40,
-                          width: 40,
-                          child: isqueryopen == 0
-                              ? SizedBox(width: 5)
-                              : Icon(Icons.arrow_back)),
-                    )
-                  ],
-                ),
-              )),
-        ],
-      ) : SizedBox()
-    );
+                      )),
+                ],
+              )
+            : SizedBox());
   }
 }

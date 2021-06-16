@@ -24,6 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
   path:
+  flutter_animated_button: 
   flutter_polyline_points: ^0.1.0
   sqflite:
   google_maps_flutter: ^2.0.1

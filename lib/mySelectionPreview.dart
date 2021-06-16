@@ -10,6 +10,7 @@ import 'dart:developer' as developer;
 
 import 'myFromandTo.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_animated_button/flutter_animated_button.dart';
 
 late _SelectionPreviewState selectionPreviewState;
 
@@ -184,7 +185,7 @@ class _SelectionPreviewState extends State<SelectionPreview> {
                               //FROM BOX START
                               GestureDetector(
                                 onTap: () {
-                                  fromBoxState.closequerybox();
+                                  fromBoxState.closeselectionpreview();
                                   fromBoxState.openfrombox();
                                 },
                                 child: Container(
@@ -246,7 +247,7 @@ class _SelectionPreviewState extends State<SelectionPreview> {
                                                     overflow:
                                                         TextOverflow.ellipsis,
                                                     style: GoogleFonts.ptMono(
-                                                      fontSize: 18,
+                                                      fontSize: 17,
                                                       color: Color.fromRGBO(
                                                           79, 79, 79, 1),
                                                       fontWeight:
@@ -264,7 +265,7 @@ class _SelectionPreviewState extends State<SelectionPreview> {
 
                               GestureDetector(
                                 onTap: () {
-                                  fromBoxState.closequerybox();
+                                  fromBoxState.closeselectionpreview();
                                   fromBoxState.opentobox();
                                 },
                                 child: Container(
@@ -324,7 +325,7 @@ class _SelectionPreviewState extends State<SelectionPreview> {
                                                 child: Text(
                                                     "${toselectedobject.stopname}",
                                                     style: GoogleFonts.ptMono(
-                                                      fontSize: 18,
+                                                      fontSize: 17,
                                                       color: Color.fromRGBO(
                                                           79, 79, 79, 1),
                                                       fontWeight:
@@ -340,6 +341,7 @@ class _SelectionPreviewState extends State<SelectionPreview> {
                             ],
                           ),
                           Container(
+                            padding:EdgeInsets.only(left:10),
                               margin: EdgeInsets.only(left: 18, top: 15),
                               height: 71,
                               width: MediaQuery.of(context).size.width - 86,
@@ -356,8 +358,10 @@ class _SelectionPreviewState extends State<SelectionPreview> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Row(
+                                mainAxisSize: MainAxisSize.max,
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  SizedBox(width: 10),
+
                                   Text('access_time_outlined',
                                       style: TextStyle(
                                           fontSize: 35,
@@ -468,13 +472,15 @@ class _SelectionPreviewState extends State<SelectionPreview> {
                                           ],
                                         )),
                                   ),
-                                  SizedBox(width: 25),
+                                  SizedBox(width: 10),
                                   Text("08:35 AM",
                                       style: GoogleFonts.ptMono(
                                         fontSize: 25,
                                         color: Color.fromRGBO(79, 79, 79, 0.6),
                                         fontWeight: FontWeight.bold,
-                                      ))
+                                      )),
+                                      SizedBox(width:25)
+
                                 ],
                               )),
                           Row(
@@ -501,13 +507,15 @@ class _SelectionPreviewState extends State<SelectionPreview> {
                                   child: Center(
                                     child: Text('close_outlined',
                                         style: TextStyle(
-                                          fontSize: 25,
+                                          fontSize: 20,
                                           color: Colors.black87,
                                           fontFamily: 'MaterialIcons',
                                         )),
                                   ),
                                 ),
                               ),
+
+                              
                               Container(
                                 margin: EdgeInsets.only(left: 18, top: 15),
                                 height: 61,
@@ -521,29 +529,31 @@ class _SelectionPreviewState extends State<SelectionPreview> {
                                     ),
                                   ],
                                   //border: Border.all(color: Colors.black38),
-                                  color: Colors.black87,
+                                  color: Color.fromRGBO(0, 0, 0, 0.75),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    SizedBox(width: 20),
                                     Text('search',
                                         style: TextStyle(
-                                          fontSize: 25,
+                                          fontSize: 20,
                                           color: Colors.white,
                                           fontFamily: 'MaterialIcons',
                                         )),
-                                    SizedBox(width: 10),
+                                        SizedBox(width:10),
                                     Text("Search buses",
                                         style: GoogleFonts.ptMono(
-                                          fontSize: 20,
+                                          fontSize: 15,
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
                                         ))
                                   ],
                                 ),
                               ),
+                              
+                              
                             ],
                           )
                         ],
