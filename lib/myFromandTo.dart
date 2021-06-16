@@ -169,7 +169,7 @@ Future<void> keeprotating(StopObject fromStopObject, StopObject toStopObject, do
           (fromStopObject.lat + toStopObject.lat) / 2,
           (fromStopObject.lng + toStopObject.lng) / 2,
         ),
-        bearing:i*0.25,
+        bearing:i*-0.25,
         tilt:89,
         zoom: zoomlevel)));
         await Future.delayed(Duration(milliseconds: 50));
