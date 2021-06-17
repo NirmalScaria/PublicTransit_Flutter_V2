@@ -26,7 +26,7 @@ var bearing = 0.0;
 late _MyFromBoxState fromBoxState;
 late FocusNode fromfocusnode;
 late FocusNode tofocusnode;
-var isrotating = 0;
+
 double zoomlevel = 13;
 
 class myFromBox extends StatefulWidget {
@@ -98,6 +98,7 @@ List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(
     });
 
     setState(() {
+      bearing=0;
       appstatus = "selectionpreview";
       isfromandtovisible = 0;
       iscardvisible = 0;
@@ -178,7 +179,7 @@ List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(
   Future<void> keeprotating(StopObject fromStopObject, StopObject toStopObject,
       double zoomlevel) async {
     for (int i = 0; i < 1000000 && isrotating == 1; i++) {
-      bearing = i * -0.31;
+      bearing += -0.31;
       myMapController
           .animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
               target: LatLng(
@@ -478,6 +479,7 @@ List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(
   }
 
   void opentobox() async {
+    
     isrotating = 0;
     if (istofocused == 0) {
       setState(() {

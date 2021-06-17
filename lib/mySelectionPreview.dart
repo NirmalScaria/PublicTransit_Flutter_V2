@@ -11,7 +11,7 @@ import 'dart:developer' as developer;
 import 'myFromandTo.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animated_button/flutter_animated_button.dart';
-
+import 'myTimePicker.dart';
 late _SelectionPreviewState selectionPreviewState;
 
 class MarqueeWidget extends StatefulWidget {
@@ -473,12 +473,7 @@ class _SelectionPreviewState extends State<SelectionPreview> {
                                         )),
                                   ),
                                   SizedBox(width: 10),
-                                  Text("08:35 AM",
-                                      style: GoogleFonts.ptMono(
-                                        fontSize: 25,
-                                        color: Color.fromRGBO(79, 79, 79, 0.6),
-                                        fontWeight: FontWeight.bold,
-                                      )),
+                                  MyTimePicker(),
                                       SizedBox(width:25)
 
                                 ],

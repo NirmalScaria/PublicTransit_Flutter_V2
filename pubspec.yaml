@@ -24,6 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
   path:
+  date_format:
   flutter_animated_button: 
   flutter_polyline_points: ^0.1.0
   sqflite:

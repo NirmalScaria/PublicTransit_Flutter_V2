@@ -11,6 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'myFromandTo.dart';
 import 'myHome.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+
 var suggestionWidgets=<Widget>[];
 var isqueryopen=0;
 var location = new Location();
@@ -24,6 +25,7 @@ var iscardvisible=1;
 var appstatus = "default";
 var isfromandtovisible=1;
 var departorreach="depart";
+var isrotating = 0;
 StopObject fromselectedobject = StopObject();
 StopObject toselectedobject = StopObject();
 
@@ -183,10 +185,11 @@ var jsonstartone = [
   }
 ];
 var jsonsuggestions = [];
-void myMainInit() {
+void myMainInit() async{
   for (i = 0; i < 15; i++) {
     jsonsuggestions = jsonsuggestions + jsonstartone;
   }
+
 }
 
 var mymapstyle = """
