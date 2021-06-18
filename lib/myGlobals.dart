@@ -12,6 +12,7 @@ import 'myFromandTo.dart';
 import 'myHome.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
+int showresultbox=0;
 var suggestionWidgets=<Widget>[];
 var isqueryopen=0;
 var location = new Location();
@@ -26,6 +27,7 @@ var appstatus = "default";
 var isfromandtovisible=1;
 var departorreach="depart";
 var isrotating = 0;
+int resultarrived=0;
 StopObject fromselectedobject = StopObject();
 StopObject toselectedobject = StopObject();
 
@@ -38,6 +40,8 @@ double tolng=0;
 var fromid=0;
 var toid=0;
 int i = 0;
+int focusedtileid = 0;
+TimeOfDay selectedTime = TimeOfDay.now();
 var myFromController = TextEditingController();
 var myToController = TextEditingController();
 final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
@@ -185,12 +189,16 @@ var jsonstartone = [
   }
 ];
 var jsonsuggestions = [];
+var masterresponse = [];
 void myMainInit() async{
   for (i = 0; i < 15; i++) {
     jsonsuggestions = jsonsuggestions + jsonstartone;
+    masterresponse = masterresponse + jsonstartone;
   }
 
 }
+
+
 
 var mymapstyle = """
 [

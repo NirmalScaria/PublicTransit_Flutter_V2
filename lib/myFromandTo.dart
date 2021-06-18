@@ -1,4 +1,5 @@
 import 'package:busmap2/myHome.dart';
+import 'package:busmap2/myResult.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
@@ -16,7 +17,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:path/path.dart' as Path;
 import 'package:sqflite/sqflite.dart';
 import 'package:flutter/widgets.dart';
-import 'package:maps_curved_line/maps_curved_line.dart';
 import 'mySelectionPreview.dart';
 import 'myCards.dart';
 
@@ -73,6 +73,7 @@ class _MyFromBoxState extends State<myFromBox> {
   }
 
   void selectionComplete(
+    
       StopObject fromStopObject, StopObject toStopObject) async {
     developer.log("LATLNG");
     developer.log(fromStopObject.lat.toString());
@@ -80,7 +81,7 @@ class _MyFromBoxState extends State<myFromBox> {
     developer.log(toStopObject.lat.toString());
     developer.log(toStopObject.lng.toString());
     closequerybox();
-
+selectedTime = TimeOfDay.now();
     /*
 List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(
          "AIzaSyBhtyzHMMICP1n4YnTPHG_W-09hua7nzXw",
@@ -420,6 +421,10 @@ List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(
   }
 
   void closequerybox() async {
+    resultDetailsState.setState(() {
+      showresultbox=0;
+      resultarrived=0;
+    });
     setState(() {
       iscardvisible = 1;
       isfromandtovisible = 1;

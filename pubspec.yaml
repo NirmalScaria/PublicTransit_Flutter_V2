@@ -24,6 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
   path:
+  loading_animations: ^2.1.0
   date_format:
   flutter_animated_button: 
   flutter_polyline_points: ^0.1.0
@@ -39,7 +40,8 @@ dependencies:
   http: ^0.12.2
   google_fonts: ^1.1.2
   back_button_interceptor: ^5.0.0
-  maps_curved_line: ^1.0.2
+  animated_text_kit: ^4.2.1
+  dotted_line: ^3.0.0
 dev_dependencies:
   flutter_launcher_icons: "^0.8.0"
   #flutter_native_splash: ^1.2.0

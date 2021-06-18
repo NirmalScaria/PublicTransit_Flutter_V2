@@ -12,7 +12,7 @@ import 'myFromandTo.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animated_button/flutter_animated_button.dart';
 import 'package:date_format/date_format.dart';
-
+import 'myGlobals.dart';
 import 'package:flutter/material.dart';
 
 class MyTimePicker extends StatefulWidget {
@@ -29,7 +29,7 @@ class _MyTimePickerState extends State<MyTimePicker> {
   String? dateTime;
 
 
-  TimeOfDay selectedTime = TimeOfDay.now();
+  
 
   String _timeController = "${formatDate(DateTime(2021,1,11,TimeOfDay.now().hour,TimeOfDay.now().minute),[hh])}:${TimeOfDay.now().minute<10?"0":""}${TimeOfDay.now().minute} ${formatDate(DateTime(2021,1,11,TimeOfDay.now().hour,TimeOfDay.now().minute),[am])}";
            Future<Null> _selectTime(BuildContext context) async {

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
@@ -12,6 +14,8 @@ import 'myFromandTo.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animated_button/flutter_animated_button.dart';
 import 'myTimePicker.dart';
+import 'myResult.dart';
+
 late _SelectionPreviewState selectionPreviewState;
 
 class MarqueeWidget extends StatefulWidget {
@@ -83,6 +87,55 @@ class SelectionPreview extends StatefulWidget {
 }
 
 class _SelectionPreviewState extends State<SelectionPreview> {
+  void search() async {
+    developer.log("searching");
+var querytime="${selectedTime.hour<10?0:""}${selectedTime.hour}${selectedTime.minute<10?0:""}${selectedTime.minute}00";
+
+fromBoxState.setState(() {
+      isrotating = 0;
+
+      markers.clear();
+      polylines.clear();
+    });
+myMapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+        target: LatLng(
+          (fromselectedobject.lat + toselectedobject.lat) / 2,
+          (fromselectedobject.lng + toselectedobject.lng) / 2,
+        ),
+        bearing: 0,
+        tilt: 0,
+        zoom: zoomlevel - 1.1)));
+  
+    resultDetailsState.setState(() {
+      showresultbox = 1;
+    });
+    await Future.delayed(Duration(milliseconds: 30));
+    resultDetailsState.setState(() {
+      focusedtileid=0;
+      appstatus = "waitingforresult";
+    });
+    setState(() {
+      appstatus = "waitingforresult";
+    });
+
+    var url = Uri.parse("https://nirmalpoonattu.tk/api/searchapi.php");
+    var response = await http.post(url, body: {
+      "originselected": fromselectedobject.stopid.toString(),
+      "destselected": toselectedobject.stopid.toString(),
+      "timeselected": querytime,
+      "startlagmax": "18000",
+      "minlayover": "1",
+      "maxlayover": "18000"
+    });
+    developer.log(response.body);
+masterresponse=jsonDecode(response.body);
+developer.log(masterresponse.toString());
+    resultDetailsState.setState(() {
+      appstatus = "showresult";
+      resultarrived=1;
+    });
+  }
+
   void toggledepartreach() {
     //developer.log("TOGGLE");
     if (departorreach == "depart") {
@@ -341,7 +394,7 @@ class _SelectionPreviewState extends State<SelectionPreview> {
                             ],
                           ),
                           Container(
-                            padding:EdgeInsets.only(left:10),
+                              padding: EdgeInsets.only(left: 10),
                               margin: EdgeInsets.only(left: 18, top: 15),
                               height: 71,
                               width: MediaQuery.of(context).size.width - 86,
@@ -359,9 +412,9 @@ class _SelectionPreviewState extends State<SelectionPreview> {
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
                                 children: [
-
                                   Text('access_time_outlined',
                                       style: TextStyle(
                                           fontSize: 35,
@@ -474,8 +527,7 @@ class _SelectionPreviewState extends State<SelectionPreview> {
                                   ),
                                   SizedBox(width: 10),
                                   MyTimePicker(),
-                                      SizedBox(width:25)
-
+                                  SizedBox(width: 25)
                                 ],
                               )),
                           Row(
@@ -509,46 +561,49 @@ class _SelectionPreviewState extends State<SelectionPreview> {
                                   ),
                                 ),
                               ),
-
-                              
-                              Container(
-                                margin: EdgeInsets.only(left: 18, top: 15),
-                                height: 61,
-                                width: MediaQuery.of(context).size.width - 165,
-                                decoration: BoxDecoration(
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Color.fromRGBO(100, 100, 100, 0.4),
-                                      blurRadius: 5,
-                                      offset: const Offset(0, 0),
-                                    ),
-                                  ],
-                                  //border: Border.all(color: Colors.black38),
-                                  color: Color.fromRGBO(0, 0, 0, 0.75),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text('search',
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          color: Colors.white,
-                                          fontFamily: 'MaterialIcons',
-                                        )),
-                                        SizedBox(width:10),
-                                    Text("Search buses",
-                                        style: GoogleFonts.ptMono(
-                                          fontSize: 15,
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ))
-                                  ],
+                              GestureDetector(
+                                onTap: () {
+                                  search();
+                                },
+                                child: Container(
+                                  margin: EdgeInsets.only(left: 18, top: 15),
+                                  height: 61,
+                                  width:
+                                      MediaQuery.of(context).size.width - 165,
+                                  decoration: BoxDecoration(
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color:
+                                            Color.fromRGBO(100, 100, 100, 0.4),
+                                        blurRadius: 5,
+                                        offset: const Offset(0, 0),
+                                      ),
+                                    ],
+                                    //border: Border.all(color: Colors.black38),
+                                    color: Color.fromRGBO(0, 0, 0, 0.75),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text('search',
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            color: Colors.white,
+                                            fontFamily: 'MaterialIcons',
+                                          )),
+                                      SizedBox(width: 10),
+                                      Text("Search buses",
+                                          style: GoogleFonts.ptMono(
+                                            fontSize: 15,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ))
+                                    ],
+                                  ),
                                 ),
                               ),
-                              
-                              
                             ],
                           )
                         ],

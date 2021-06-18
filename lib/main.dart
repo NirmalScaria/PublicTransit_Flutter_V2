@@ -9,7 +9,7 @@ import 'myGlobals.dart';
 import 'package:http/http.dart' as http;
 import 'dart:developer' as developer;
 import 'mySelectionPreview.dart';
-
+import 'myResult.dart';
 void main() {
   runApp(MyApp());
 }
@@ -48,7 +48,9 @@ class _MyHomePageState extends State<MyHomePage> {
             myBackgroundMap(),
             MyCard(),
             myFromBox(),
+            
             SelectionPreview(),
+            ResultDetails(),
           ],
         ),
       ),
