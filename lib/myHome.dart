@@ -53,16 +53,19 @@ void initState() {
 
   @override
   Widget build(BuildContext context) {
-    return GoogleMap(
-      initialCameraPosition: CameraPosition(target: LatLng(9, 76), zoom: 7),
-      rotateGesturesEnabled: true,
-      compassEnabled: true,
-      onMapCreated: _onMapCreated,
-      myLocationEnabled: true,
-      myLocationButtonEnabled: true,
-      mapType: MapType.normal,
-      markers: markers,
-      polylines: polylines,
+    return Container(
+      height:MediaQuery.of(context).size.height-backmapsizeminus,
+      child: GoogleMap(
+        initialCameraPosition: CameraPosition(target: LatLng(9, 76), zoom: 7),
+        rotateGesturesEnabled: true,
+        compassEnabled: true,
+        onMapCreated: _onMapCreated,
+        myLocationEnabled: true,
+        myLocationButtonEnabled: true,
+        mapType: MapType.normal,
+        markers: markers,
+        polylines: polylines,
+      ),
     );
   }
 

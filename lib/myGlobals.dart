@@ -44,6 +44,7 @@ int focusedtileid = 0;
 TimeOfDay selectedTime = TimeOfDay.now();
 var myFromController = TextEditingController();
 var myToController = TextEditingController();
+var backmapsizeminus=0;
 final GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
 
 final GlobalKey<AnimatedListState> listKeyTo = GlobalKey<AnimatedListState>();

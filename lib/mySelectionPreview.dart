@@ -16,6 +16,7 @@ import 'package:flutter_animated_button/flutter_animated_button.dart';
 import 'myTimePicker.dart';
 import 'myResult.dart';
 
+import 'dart:math';
 late _SelectionPreviewState selectionPreviewState;
 
 class MarqueeWidget extends StatefulWidget {
@@ -99,7 +100,7 @@ fromBoxState.setState(() {
     });
 myMapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
         target: LatLng(
-          (fromselectedobject.lat + toselectedobject.lat) / 2,
+          (fromselectedobject.lat + toselectedobject.lat) / 2-(0.05 * pow(2, 12.4 - (zoomlevel-1.1))),
           (fromselectedobject.lng + toselectedobject.lng) / 2,
         ),
         bearing: 0,
@@ -134,6 +135,7 @@ developer.log(masterresponse.toString());
       appstatus = "showresult";
       resultarrived=1;
     });
+    
   }
 
   void toggledepartreach() {
@@ -162,9 +164,8 @@ developer.log(masterresponse.toString());
           child: AnimatedContainer(
             duration: Duration(milliseconds: 800),
             curve: Curves.fastOutSlowIn,
-            margin: EdgeInsets.only(left: 20, right: 20, bottom: 30),
-            height: appstatus != "selectionpreview" ? 0 : 355,
-            width: MediaQuery.of(context).size.width - 40,
+            height: appstatus != "selectionpreview" ? 0 : 400,
+            width: MediaQuery.of(context).size.width,
             decoration: BoxDecoration(
               color: appstatus != "selectionpreview"
                   ? Color.fromRGBO(255, 255, 255, 0.3)
@@ -189,7 +190,7 @@ developer.log(masterresponse.toString());
               alignment: Alignment.bottomCenter,
               child: appstatus == "selectionpreview"
                   ? Container(
-                      margin: EdgeInsets.only(left: 20, right: 20, bottom: 30),
+                      margin: EdgeInsets.only(left: 20, right: 20, bottom: 20),
                       height: appstatus != "selectionpreview" ? 0 : 355,
                       width: MediaQuery.of(context).size.width - 40,
 
