@@ -39,7 +39,12 @@ class _ResultProxyState extends State<ResultProxy> {
             ],
           )
         : widget.itemid == 1
+
+
+
+
             ? ResultPreview(itemid: 0)
+            
             : widget.itemid == 2
                 ? SizedBox(height: 10)
                 : widget.itemid == 3

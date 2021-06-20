@@ -13,7 +13,9 @@ import 'dart:developer' as developer;
 import 'dart:convert';
 import 'myFromandTo.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'myResult.dart';
+import 'myResultDetails.dart';
+import 'myResultDetailsDouble.dart';
 class ResultPreview extends StatefulWidget {
   const ResultPreview({Key? key, required this.itemid}) : super(key: key);
   final int itemid;
@@ -24,7 +26,7 @@ class ResultPreview extends StatefulWidget {
 class _ResultPreviewState extends State<ResultPreview> {
   @override
   Widget build(BuildContext context) {
-    return  Container(
+    return Container(
         margin: EdgeInsets.only(top: 10),
         padding: EdgeInsets.all(17),
         decoration: BoxDecoration(
@@ -176,6 +178,16 @@ class _ResultPreviewState extends State<ResultPreview> {
               ],
             ),
             SizedBox(height: 10),
+            openedroute == widget.itemid ? 
+            
+            masterresponse[widget.itemid]['numberofsteps']==1 ? 
+            
+            ResultExpandedSingle(itemid:widget.itemid)
+
+            :
+
+            ResultExpandedDouble(itemid:widget.itemid)
+            :
             Container(
                 constraints: BoxConstraints(
                     maxWidth: MediaQuery.of(context).size.width - 160),
@@ -186,27 +198,70 @@ class _ResultPreviewState extends State<ResultPreview> {
                       color: Color.fromRGBO(107, 107, 107, 1),
                       fontWeight: FontWeight.w400),
                 )),
-                SizedBox(height:7),
+            SizedBox(height: 7),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisSize: MainAxisSize.max,
+              children: [
                 RichText(
-                  text: TextSpan(
-                    style: GoogleFonts.roboto(
-                      fontSize: 14,
-                      color: Color.fromRGBO(112, 112, 112, 1),
-                      fontWeight: FontWeight.w700),
-                      children: [
-                        TextSpan(text: "Reach destination by "),
-                        TextSpan(text:
-                        masterresponse[widget.itemid]["numberofsteps"] == 1 ?
-                        masterresponse[widget.itemid]["getoutt"]
-                        :
-                        masterresponse[widget.itemid]["getoutt"][1],
-                          style: GoogleFonts.roboto(
-                      fontSize: 14,
-                      color: Color.fromRGBO(41, 170, 21, 1),
-                      fontWeight: FontWeight.w700),)
-                      ]
+                    text: TextSpan(
+                        style: GoogleFonts.roboto(
+                            fontSize: 14,
+                            color: Color.fromRGBO(112, 112, 112, 1),
+                            fontWeight: FontWeight.w700),
+                        children: [
+                      TextSpan(text: "Reach destination by "),
+                      TextSpan(
+                        text:
+                            masterresponse[widget.itemid]["numberofsteps"] == 1
+                                ? masterresponse[widget.itemid]["getoutt"]
+                                : masterresponse[widget.itemid]["getoutt"][1],
+                        style: GoogleFonts.roboto(
+                            fontSize: 14,
+                            color: Color.fromRGBO(41, 170, 21, 1),
+                            fontWeight: FontWeight.w700),
                       )
+                    ])),
+                GestureDetector(
+                  onTap: () {
+                    if (openedroute == widget.itemid) {
+                      resultDetailsState.setState(() {
+                        openedroute = 999;
+                      });
+                    } else {
+                      resultDetailsState.setState(() {
+                        openedroute = widget.itemid;
+                      });
+                    }
+                  },
+                  child: Container(
+                    padding: EdgeInsets.fromLTRB(10, 4, 10, 4),
+                    decoration: BoxDecoration(
+                      color: Color.fromRGBO(20, 20, 20, 1),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Row(
+                      children: [
+                        Text(
+                          openedroute == widget.itemid ? "Close" : "View",
+                          style: GoogleFonts.roboto(
+                              fontSize: 14,
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500),
+                        ),
+                        SizedBox(width: 5),
+                        Text(openedroute == widget.itemid ? 'expand_less' : 'expand_more',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontFamily: 'MaterialIcons',
+                            )),
+                      ],
+                    ),
+                  ),
                 )
+              ],
+            ),
           ],
         ));
   }

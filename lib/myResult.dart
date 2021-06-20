@@ -16,6 +16,7 @@ import 'mySelectionPreview.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'myResultPreview.dart';
 import 'myResultproxy.dart';
+import 'package:expandable/expandable.dart';
 
 late _ResultDetailsState resultDetailsState;
 
@@ -100,9 +101,57 @@ class _ResultDetailsState extends State<ResultDetails> {
                             offset: const Offset(0, 0),
                           ),
                         ]),
-                    child: Flex(
-                      direction: Axis.horizontal,
-                                          children: [Expanded(
+
+
+                        /*
+                    child: SingleChildScrollView(
+                        child: Column(
+                      children: [
+                        ExpandableNotifier(
+                          // <-- Provides ExpandableController to its children
+                          child: Column(
+                            children: [
+                              Expandable(
+                                // <-- Driven by ExpandableController from ExpandableNotifier
+                                collapsed: ExpandableButton(
+                                  // <-- Expands when tapped on the cover photo
+                                  child: ResultProxy(itemid: 1),
+                                ),
+                                expanded: Column(children: [
+                                  ExpandableButton(
+                                    // <-- Collapses when tapped on
+                                    child: ResultProxy(itemid: 15),
+                                  ),
+                                ]),
+                              ),
+                            ],
+                          ),
+                        ),
+                        ExpandableNotifier(
+                          // <-- Provides ExpandableController to its children
+                          child: Column(
+                            children: [
+                              Expandable(
+                                // <-- Driven by ExpandableController from ExpandableNotifier
+                                collapsed: ExpandableButton(
+                                  // <-- Expands when tapped on the cover photo
+                                  child: ResultProxy(itemid: 1),
+                                ),
+                                expanded: Column(children: [
+                                  ExpandableButton(
+                                    // <-- Collapses when tapped on
+                                    child: ResultProxy(itemid: 15),
+                                  ),
+                                ]),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ))
+
+                    */
+                    
                         child: ListView.builder(
                             padding: EdgeInsets.zero,
                             scrollDirection: Axis.vertical,
@@ -111,9 +160,10 @@ class _ResultDetailsState extends State<ResultDetails> {
                             itemBuilder: (_, index) => ResultProxy(
                                   itemid: index,
                                 )),
-                      ),]
-                    ),
+                                
+                    
                   ),
-                )));
+                ),
+              ));
   }
 }
