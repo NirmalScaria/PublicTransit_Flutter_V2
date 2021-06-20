@@ -15,6 +15,7 @@ import 'package:animated_text_kit/animated_text_kit.dart';
 import 'mySelectionPreview.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'myResultPreview.dart';
+import 'myResultproxy.dart';
 
 late _ResultDetailsState resultDetailsState;
 
@@ -87,58 +88,32 @@ class _ResultDetailsState extends State<ResultDetails> {
                   height: 474,
                   width: MediaQuery.of(context).size.width,
                   child: Container(
-                      padding: EdgeInsets.fromLTRB(13, 20, 13, 0),
-                      width: MediaQuery.of(context).size.width - 40,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(23),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black38,
-                              blurRadius: 17,
-                              offset: const Offset(0, 0),
-                            ),
-                          ]),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              SizedBox(width: 10),
-                              Text(
-                                "REACH FIRST",
-                                style: GoogleFonts.roboto(
-                                    fontSize: 14,
-                                    color: Color.fromRGBO(111, 111, 111, 1),
-                                    fontWeight: FontWeight.w700),
-                              ),
-                            ],
+                    padding: EdgeInsets.fromLTRB(13, 20, 13, 0),
+                    width: MediaQuery.of(context).size.width - 40,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(23),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black38,
+                            blurRadius: 17,
+                            offset: const Offset(0, 0),
                           ),
-                          
-                          ResultPreview(itemid: 0),
-                          SizedBox(height: 10),
-                          Row(
-                            children: [
-                              SizedBox(width: 10),
-                              Text(
-                                "OTHER ROUTES",
-                                style: GoogleFonts.roboto(
-                                    fontSize: 14,
-                                    color: Color.fromRGBO(111, 111, 111, 1),
-                                    fontWeight: FontWeight.w700),
-                              ),
-                            ],
-                          ),
-                          Expanded(
-                            child: ListView.builder(
-                              padding: EdgeInsets.zero,
-                              scrollDirection: Axis.vertical,
-                              physics: BouncingScrollPhysics(),
-                                itemCount: masterresponse.length-1,
-                                itemBuilder: (_, index) => 
-                                ResultPreview(itemid: index+1,)),
-                          ),
-                        ],
-                      )),
+                        ]),
+                    child: Flex(
+                      direction: Axis.horizontal,
+                                          children: [Expanded(
+                        child: ListView.builder(
+                            padding: EdgeInsets.zero,
+                            scrollDirection: Axis.vertical,
+                            physics: BouncingScrollPhysics(),
+                            itemCount: masterresponse.length + 3,
+                            itemBuilder: (_, index) => ResultProxy(
+                                  itemid: index,
+                                )),
+                      ),]
+                    ),
+                  ),
                 )));
   }
 }
