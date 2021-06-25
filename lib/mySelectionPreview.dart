@@ -15,8 +15,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animated_button/flutter_animated_button.dart';
 import 'myTimePicker.dart';
 import 'myResult.dart';
-
+import 'dart:ui' as ui;
+import 'dart:typed_data';
 import 'dart:math';
+
 late _SelectionPreviewState selectionPreviewState;
 
 class MarqueeWidget extends StatefulWidget {
@@ -88,38 +90,56 @@ class SelectionPreview extends StatefulWidget {
 }
 
 class _SelectionPreviewState extends State<SelectionPreview> {
+  Future<Uint8List> getBytesFromAsset(String path, int width) async {
+    ByteData data = await rootBundle.load(path);
+    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(),
+        targetWidth: width);
+    ui.FrameInfo fi = await codec.getNextFrame();
+    return (await fi.image.toByteData(format: ui.ImageByteFormat.png))!
+        .buffer
+        .asUint8List();
+  }
+
+  Future<BitmapDescriptor> getBitmapDescriptorFromAssetBytes(
+      String path, int width) async {
+    final Uint8List imageData = await getBytesFromAsset(path, width);
+    return BitmapDescriptor.fromBytes(imageData);
+  }
+
   void search() async {
     developer.log("searching");
-var querytime="${selectedTime.hour<10?0:""}${selectedTime.hour}${selectedTime.minute<10?0:""}${selectedTime.minute}00";
+    var querytime =
+        "${selectedTime.hour < 10 ? 0 : ""}${selectedTime.hour}${selectedTime.minute < 10 ? 0 : ""}${selectedTime.minute}00";
 
-fromBoxState.setState(() {
+    fromBoxState.setState(() {
       isrotating = 0;
 
       markers.clear();
       polylines.clear();
     });
-myMapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+    myMapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
         target: LatLng(
-          (fromselectedobject.lat + toselectedobject.lat) / 2-(0.05 * pow(2, 12.4 - (zoomlevel-1.1))),
+          (fromselectedobject.lat + toselectedobject.lat) / 2 -
+              (0.05 * pow(2, 12.4 - (zoomlevel - 1.1))),
           (fromselectedobject.lng + toselectedobject.lng) / 2,
         ),
         bearing: 0,
         tilt: 0,
         zoom: zoomlevel - 1.1)));
-  
+
     resultDetailsState.setState(() {
       showresultbox = 1;
     });
     await Future.delayed(Duration(milliseconds: 30));
     resultDetailsState.setState(() {
-      focusedtileid=0;
+      focusedtileid = 0;
       appstatus = "waitingforresult";
     });
     setState(() {
       appstatus = "waitingforresult";
     });
 
-    var url = Uri.parse("https://nirmalpoonattu.tk/api/searchapi.php");
+    var url = Uri.parse("https://3buses.tk/api/searchapi.php");
     var response = await http.post(url, body: {
       "originselected": fromselectedobject.stopid.toString(),
       "destselected": toselectedobject.stopid.toString(),
@@ -128,14 +148,186 @@ myMapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
       "minlayover": "1",
       "maxlayover": "18000"
     });
-    developer.log(response.body);
-masterresponse=jsonDecode(response.body);
-developer.log(masterresponse.toString());
+    final myOriginIcon =
+        await getBitmapDescriptorFromAssetBytes("lib/assets/hail.png", 100);
+    final myLinkIcon =
+        await getBitmapDescriptorFromAssetBytes("lib/assets/link.png", 100);
+    final myTargetIcon =
+        await getBitmapDescriptorFromAssetBytes("lib/assets/dest.png", 100);
+    //developer.log(response.body);
+    masterresponse = jsonDecode(response.body);
+    //developer.log(masterresponse.toString());
     resultDetailsState.setState(() {
       appstatus = "showresult";
-      resultarrived=1;
+      resultarrived = 1;
     });
-    
+    myMapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+        target: LatLng(
+          (fromselectedobject.lat + toselectedobject.lat) / 2 -
+              (0.05 * pow(2, 12.4 - (zoomlevel - 0.3))),
+          (fromselectedobject.lng + toselectedobject.lng) / 2,
+        ),
+        bearing: 0,
+        zoom: zoomlevel - 0.3)));
+
+List<LatLng> polylinepoints=[];
+        for(i=0;i<masterresponse[0]["latlist"].length;i++){
+polylinepoints.add(LatLng(masterresponse[0]["latlist"][i],masterresponse[0]["lnglist"][i]));
+}
+
+Polyline polyline = Polyline(
+        width: 5,
+        startCap: Cap.roundCap,
+        endCap: Cap.roundCap,
+        polylineId: PolylineId("polyres1"),
+        color: Color.fromRGBO(201, 98, 98, 1),
+        points: polylinepoints,
+      );
+
+
+
+    backgroundMapState.setState(() {
+      if(masterresponse[0]["numberofsteps"]==2){
+      markers.add(Marker(
+        anchor: const Offset(0.5,0.5),
+          alpha: 1,
+          markerId: MarkerId("origin"),
+          icon: myOriginIcon,
+          position: LatLng(masterresponse[0]["getinlat"][0],
+              masterresponse[0]["getinlng"][0])));
+
+      markers.add(Marker(
+        anchor: const Offset(0.5,0.5),
+          alpha: 1,
+          markerId: MarkerId("link"),
+          icon: myLinkIcon,
+          position: LatLng(masterresponse[0]["getinlat"][1],
+              masterresponse[0]["getinlng"][1])));
+
+      markers.add(Marker(
+        anchor: const Offset(0.5,0.5),
+          alpha: 0.9,
+          markerId: MarkerId("dest"),
+          icon: myTargetIcon,
+          position: LatLng(masterresponse[0]["getoutlat"][1],
+              masterresponse[0]["getoutlng"][1])));
+      }
+      else{
+        markers.add(Marker(
+        anchor: const Offset(0.5,0.5),
+          alpha: 1,
+          markerId: MarkerId("origin"),
+          icon: myOriginIcon,
+          position: LatLng(masterresponse[0]["getinlat"],
+              masterresponse[0]["getinlng"])));
+
+      markers.add(Marker(
+        anchor: const Offset(0.5,0.5),
+          alpha: 1,
+          markerId: MarkerId("dest"),
+          icon: myTargetIcon,
+          position: LatLng(masterresponse[0]["getoutlat"],
+              masterresponse[0]["getoutlng"])));
+      }
+polylines.add(polyline);
+    });
+
+    //if first result is conect
+    /*
+    if (masterresponse[0]["numberofsteps"] == 2) {
+      Polyline polyline = Polyline(
+        width: 7,
+        zIndex: 500,
+        startCap: Cap.roundCap,
+        endCap: Cap.roundCap,
+        polylineId: PolylineId("polyres1"),
+        color: Color.fromRGBO(201, 98, 98, 0.5),
+        points: [
+          LatLng(masterresponse[0]["getinlat"][0],
+              masterresponse[0]["getinlng"][0]),
+          LatLng(masterresponse[0]["getinlat"][1],
+              masterresponse[0]["getinlng"][1])
+        ],
+      );
+      Polyline polyline2 = Polyline(
+        width: 4,
+        zIndex: 500,
+        startCap: Cap.roundCap,
+        endCap: Cap.roundCap,
+        polylineId: PolylineId("polyres2"),
+        color: Color.fromRGBO(201, 98, 98, 1),
+        points: [
+          LatLng(masterresponse[0]["getinlat"][0],
+              masterresponse[0]["getinlng"][0]),
+          LatLng(masterresponse[0]["getinlat"][1],
+              masterresponse[0]["getinlng"][1])
+        ],
+      );
+      Polyline polyline3 = Polyline(
+        width: 7,
+        zIndex: 500,
+        startCap: Cap.roundCap,
+        endCap: Cap.roundCap,
+        polylineId: PolylineId("polyres3"),
+        color: Color.fromRGBO(201, 98, 98, 0.5),
+        points: [
+          LatLng(masterresponse[0]["getinlat"][1],
+              masterresponse[0]["getinlng"][1]),
+          LatLng(masterresponse[0]["getoutlat"][1],
+              masterresponse[0]["getoutlng"][1])
+        ],
+      );
+      Polyline polyline4 = Polyline(
+        width: 4,
+        zIndex: 500,
+        startCap: Cap.roundCap,
+        endCap: Cap.roundCap,
+        polylineId: PolylineId("polyres4"),
+        color: Color.fromRGBO(201, 98, 98, 1),
+        points: [
+          LatLng(masterresponse[0]["getinlat"][1],
+              masterresponse[0]["getinlng"][1]),
+          LatLng(masterresponse[0]["getoutlat"][1],
+              masterresponse[0]["getoutlng"][1])
+        ],
+      );
+      backgroundMapState.setState(() {
+        markers.add(Marker(
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+        alpha: 0.9,
+        markerId: MarkerId("origin"),
+        position: LatLng(masterresponse[0]["getinlat"][0],
+              masterresponse[0]["getinlng"][0])));
+            
+            markers.add(Marker(
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueMagenta),
+        alpha: 0.9,
+        markerId: MarkerId("connect"),
+        position: LatLng(masterresponse[0]["getinlat"][1],
+              masterresponse[0]["getinlng"][1])));
+
+              markers.add(Marker(
+        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
+        alpha: 0.9,
+        markerId: MarkerId("dest"),
+        position: LatLng(masterresponse[0]["getoutlat"][1],
+              masterresponse[0]["getoutlng"][1])));
+
+        polylines.add(polyline);
+        polylines.add(polyline2);
+        polylines.add(polyline3);
+        polylines.add(polyline4);
+      });
+    }
+    /*
+    await Future.delayed(Duration(milliseconds: 1000));
+    fromBoxState.setState((){
+isrotating=1;
+        });
+      fromBoxState.keeprotating(fromselectedobject, toselectedobject, zoomlevel-0.3);
+      */
+//CONNECT END
+*/
   }
 
   void toggledepartreach() {

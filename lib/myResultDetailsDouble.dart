@@ -623,7 +623,8 @@ class _ResultExpandedDoubleState extends State<ResultExpandedDouble> {
           ),
         ],
       ),
-      SizedBox(height: 7)
+      SizedBox(height: 7),
+      //Image(image: AssetImage('lib/assets/hail.png'))
     ]);
   }
 }

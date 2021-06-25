@@ -32,7 +32,7 @@ class _MyCardState extends State<MyCard> {
   }
 
   Future<String> loadCardsData(double lat, double lng) async {
-    var url = Uri.parse("https://nirmalpoonattu.tk/api/getsuggestions.php");
+    var url = Uri.parse("https://3buses.tk/api/getsuggestions.php");
     var response = await http
         .post(url, body: {"gx": lat.toString(), "gy": lng.toString()});
     jsonresp = jsonDecode(response.body);

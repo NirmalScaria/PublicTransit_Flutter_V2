@@ -439,6 +439,10 @@ List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(
     cardState.setState(() {
       iscardvisible = 1;
     });
+    backgroundMapState.setState(() {
+    markers.clear();
+    polylines.clear();
+    });
   }
 
   void closeselectionpreview() async {
@@ -655,7 +659,7 @@ List<PointLatLng> result = await polylinePoints.getRouteBetweenCoordinates(
         //developer.log((1000 - count).toString());
         //UPDATE DATABASE
         db.rawQuery('DELETE FROM stops');
-        var url = Uri.parse("https://nirmalpoonattu.tk/api/findallstops.php");
+        var url = Uri.parse("https://3buses.tk/api/findallstops.php");
         var response = await http
             .post(url, body: {"gx": lat.toString(), "gy": lng.toString()});
         //developer.log(response.body);
