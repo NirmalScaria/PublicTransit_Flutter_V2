@@ -83,7 +83,9 @@ class _ResultDetailsState extends State<ResultDetails> {
                           ],
                         ))),
               )
-            : Align(
+            : 
+            appstatus!="errorfromserver" ?
+            Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
                   height: 474,
@@ -103,54 +105,7 @@ class _ResultDetailsState extends State<ResultDetails> {
                         ]),
 
 
-                        /*
-                    child: SingleChildScrollView(
-                        child: Column(
-                      children: [
-                        ExpandableNotifier(
-                          // <-- Provides ExpandableController to its children
-                          child: Column(
-                            children: [
-                              Expandable(
-                                // <-- Driven by ExpandableController from ExpandableNotifier
-                                collapsed: ExpandableButton(
-                                  // <-- Expands when tapped on the cover photo
-                                  child: ResultProxy(itemid: 1),
-                                ),
-                                expanded: Column(children: [
-                                  ExpandableButton(
-                                    // <-- Collapses when tapped on
-                                    child: ResultProxy(itemid: 15),
-                                  ),
-                                ]),
-                              ),
-                            ],
-                          ),
-                        ),
-                        ExpandableNotifier(
-                          // <-- Provides ExpandableController to its children
-                          child: Column(
-                            children: [
-                              Expandable(
-                                // <-- Driven by ExpandableController from ExpandableNotifier
-                                collapsed: ExpandableButton(
-                                  // <-- Expands when tapped on the cover photo
-                                  child: ResultProxy(itemid: 1),
-                                ),
-                                expanded: Column(children: [
-                                  ExpandableButton(
-                                    // <-- Collapses when tapped on
-                                    child: ResultProxy(itemid: 15),
-                                  ),
-                                ]),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ))
-
-                    */
+                        
                     
                         child: ListView.builder(
                             padding: EdgeInsets.zero,
@@ -164,6 +119,66 @@ class _ResultDetailsState extends State<ResultDetails> {
                     
                   ),
                 ),
-              ));
+              )
+              : 
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  height: 474,
+                  width: MediaQuery.of(context).size.width,
+                  child: Container(
+                    padding: EdgeInsets.fromLTRB(13, 20, 13, 0),
+                    width: MediaQuery.of(context).size.width - 40,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(23),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black38,
+                            blurRadius: 17,
+                            offset: const Offset(0, 0),
+                          ),
+                        ]),
+
+
+                        
+                    
+                        child: GestureDetector(
+                          onTap:(){
+                            selectionPreviewState.search();
+                          },
+                                                  child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('refresh',
+                                  style: TextStyle(
+                                    fontSize: 50,
+                                    color: Colors.blueAccent,
+                                    fontFamily: 'MaterialIcons',
+                                  )),
+                              SizedBox(height: 15),
+                              Text(
+                                responseerror,
+                                style: GoogleFonts.ptSansCaption(
+                                    fontSize: 20,
+                                    color: Colors.black87,
+                                    fontWeight: FontWeight.w700),
+                                
+                              ),
+                            ],
+                          ),
+                        )
+                                
+                    
+                  ),
+                ),
+              )
+              
+              )
+              
+              
+              
+              ;
   }
 }

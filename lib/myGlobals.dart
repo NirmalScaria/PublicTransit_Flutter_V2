@@ -13,6 +13,7 @@ import 'myHome.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 
 int showresultbox=0;
+var responseerror="";
 var suggestionWidgets=<Widget>[];
 var isqueryopen=0;
 var location = new Location();

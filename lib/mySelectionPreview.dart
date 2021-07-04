@@ -18,7 +18,7 @@ import 'myResult.dart';
 import 'dart:ui' as ui;
 import 'dart:typed_data';
 import 'dart:math';
-
+import 'dart:async';
 late _SelectionPreviewState selectionPreviewState;
 
 class MarqueeWidget extends StatefulWidget {
@@ -106,7 +106,9 @@ class _SelectionPreviewState extends State<SelectionPreview> {
     return BitmapDescriptor.fromBytes(imageData);
   }
 
+
   void search() async {
+    openedroute=999;
     developer.log("searching");
     var querytime =
         "${selectedTime.hour < 10 ? 0 : ""}${selectedTime.hour}${selectedTime.minute < 10 ? 0 : ""}${selectedTime.minute}00";
@@ -136,45 +138,72 @@ class _SelectionPreviewState extends State<SelectionPreview> {
       appstatus = "waitingforresult";
     });
     setState(() {
+      resultarrived=0;
       appstatus = "waitingforresult";
     });
-
-    var url = Uri.parse("https://3buses.tk/api/searchapi.php");
+var responsestatus="waiting";
+    
+      var url = Uri.parse("https://3buses.tk/api/searchapi.php");
     var response = await http.post(url, body: {
       "originselected": fromselectedobject.stopid.toString(),
       "destselected": toselectedobject.stopid.toString(),
       "timeselected": querytime,
       "startlagmax": "18000",
       "minlayover": "1",
-      "maxlayover": "18000"
+      "maxlayover": "18000",
+      "usertype": "user"
+    }).timeout(const Duration(seconds: 5),
+    onTimeout: (){
+      developer.log("TIMEOUT");
+      return null;
     });
-    final myOriginIcon =
+    if(response!=null){
+    if(response.statusCode==200){
+    if(response.body.contains("[")){
+      developer.log("RESULT SUCCESS");
+      responsestatus="success";
+      showResult(response);
+    }
+    else{
+      developer.log("ERROR AT SERVER");
+      developer.log(response.body);
+      showError("ERROR FROM SERVER. PROBABLY GONE BRANKRUPT");
+    }
+    }
+    else{
+      developer.log("ERROR IN GETTING RESPONSE");
+      showError("ERROR FETCHING RESULT");
+    }
+    }
+    else{
+      developer.log("FAILED");
+      showError("CANNOT CONNECT TO SERVER");
+    }
+    
+  }
+
+void showError(errortype){
+  resultDetailsState.setState(() {
+    
+    appstatus="errorfromserver";
+    resultarrived=1;
+    responseerror=errortype;
+  
+      });
+}
+
+void showOnMap(id) async {
+  final myOriginIcon =
         await getBitmapDescriptorFromAssetBytes("lib/assets/hail.png", 100);
     final myLinkIcon =
         await getBitmapDescriptorFromAssetBytes("lib/assets/link.png", 100);
     final myTargetIcon =
         await getBitmapDescriptorFromAssetBytes("lib/assets/dest.png", 100);
         final myPointIcon =
-        await getBitmapDescriptorFromAssetBytes("lib/assets/point.png", 40);
-    //developer.log(response.body);
-    masterresponse = jsonDecode(response.body);
-    //developer.log(masterresponse.toString());
-    resultDetailsState.setState(() {
-      appstatus = "showresult";
-      resultarrived = 1;
-    });
-    myMapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-        target: LatLng(
-          (fromselectedobject.lat + toselectedobject.lat) / 2 -
-              (0.05 * pow(2, 12.4 - (zoomlevel - 0.3))),
-          (fromselectedobject.lng + toselectedobject.lng) / 2,
-        ),
-        bearing: 0,
-        zoom: zoomlevel - 0.3)));
-developer.log(masterresponse[0]["lats"][0].toString());
+        await getBitmapDescriptorFromAssetBytes("lib/assets/point.png", 25);
 List<LatLng> polylinepoints=[];
-        for(int iii=0;iii<masterresponse[0]["lats"].length;iii++){
-polylinepoints.add(LatLng((masterresponse[0]["lats"][iii].toDouble()),masterresponse[0]["lngs"][iii].toDouble()));
+        for(int iii=0;iii<masterresponse[id]["lats"].length;iii++){
+polylinepoints.add(LatLng((masterresponse[id]["lats"][iii].toDouble()),masterresponse[id]["lngs"][iii].toDouble()));
 }
 
 Polyline polyline = Polyline(
@@ -189,45 +218,45 @@ Polyline polyline = Polyline(
 
 
     backgroundMapState.setState(() {
-
-      for(int iii=1;iii<masterresponse[0]["lats"].length-1;iii++){
+markers.clear();
+      for(int iii=1;iii<masterresponse[id]["lats"].length-1;iii++){
 markers.add(Marker(
         anchor: const Offset(0.5,0.5),
           alpha: 1,
           markerId: MarkerId("point$iii"),
           icon: myPointIcon,
-          position: LatLng(masterresponse[0]["lats"][iii],
-              masterresponse[0]["lngs"][iii])));
+          position: LatLng(masterresponse[id]["lats"][iii],
+              masterresponse[id]["lngs"][iii])));
 }
 
 
       
 
 
-      if(masterresponse[0]["numberofsteps"]==2){
+      if(masterresponse[id]["numberofsteps"]==2){
       markers.add(Marker(
         anchor: const Offset(0.5,0.5),
           alpha: 1,
           markerId: MarkerId("origin"),
           icon: myOriginIcon,
-          position: LatLng(masterresponse[0]["getinlat"][0],
-              masterresponse[0]["getinlng"][0])));
+          position: LatLng(masterresponse[id]["getinlat"][0],
+              masterresponse[id]["getinlng"][0])));
 
       markers.add(Marker(
         anchor: const Offset(0.5,0.5),
           alpha: 1,
           markerId: MarkerId("link"),
           icon: myLinkIcon,
-          position: LatLng(masterresponse[0]["getinlat"][1],
-              masterresponse[0]["getinlng"][1])));
+          position: LatLng(masterresponse[id]["getinlat"][1],
+              masterresponse[id]["getinlng"][1])));
 
       markers.add(Marker(
         anchor: const Offset(0.5,0.5),
           alpha: 0.9,
           markerId: MarkerId("dest"),
           icon: myTargetIcon,
-          position: LatLng(masterresponse[0]["getoutlat"][1],
-              masterresponse[0]["getoutlng"][1])));
+          position: LatLng(masterresponse[id]["getoutlat"][1],
+              masterresponse[id]["getoutlng"][1])));
       }
       else{
         markers.add(Marker(
@@ -235,117 +264,43 @@ markers.add(Marker(
           alpha: 1,
           markerId: MarkerId("origin"),
           icon: myOriginIcon,
-          position: LatLng(masterresponse[0]["getinlat"],
-              masterresponse[0]["getinlng"])));
+          position: LatLng(masterresponse[id]["getinlat"],
+              masterresponse[id]["getinlng"])));
 
       markers.add(Marker(
         anchor: const Offset(0.5,0.5),
           alpha: 1,
           markerId: MarkerId("dest"),
           icon: myTargetIcon,
-          position: LatLng(masterresponse[0]["getoutlat"],
-              masterresponse[0]["getoutlng"])));
+          position: LatLng(masterresponse[id]["getoutlat"],
+              masterresponse[id]["getoutlng"])));
       }
+      polylines.clear();
 polylines.add(polyline);
     });
 
-    //if first result is conect
-    /*
-    if (masterresponse[0]["numberofsteps"] == 2) {
-      Polyline polyline = Polyline(
-        width: 7,
-        zIndex: 500,
-        startCap: Cap.roundCap,
-        endCap: Cap.roundCap,
-        polylineId: PolylineId("polyres1"),
-        color: Color.fromRGBO(201, 98, 98, 0.5),
-        points: [
-          LatLng(masterresponse[0]["getinlat"][0],
-              masterresponse[0]["getinlng"][0]),
-          LatLng(masterresponse[0]["getinlat"][1],
-              masterresponse[0]["getinlng"][1])
-        ],
-      );
-      Polyline polyline2 = Polyline(
-        width: 4,
-        zIndex: 500,
-        startCap: Cap.roundCap,
-        endCap: Cap.roundCap,
-        polylineId: PolylineId("polyres2"),
-        color: Color.fromRGBO(201, 98, 98, 1),
-        points: [
-          LatLng(masterresponse[0]["getinlat"][0],
-              masterresponse[0]["getinlng"][0]),
-          LatLng(masterresponse[0]["getinlat"][1],
-              masterresponse[0]["getinlng"][1])
-        ],
-      );
-      Polyline polyline3 = Polyline(
-        width: 7,
-        zIndex: 500,
-        startCap: Cap.roundCap,
-        endCap: Cap.roundCap,
-        polylineId: PolylineId("polyres3"),
-        color: Color.fromRGBO(201, 98, 98, 0.5),
-        points: [
-          LatLng(masterresponse[0]["getinlat"][1],
-              masterresponse[0]["getinlng"][1]),
-          LatLng(masterresponse[0]["getoutlat"][1],
-              masterresponse[0]["getoutlng"][1])
-        ],
-      );
-      Polyline polyline4 = Polyline(
-        width: 4,
-        zIndex: 500,
-        startCap: Cap.roundCap,
-        endCap: Cap.roundCap,
-        polylineId: PolylineId("polyres4"),
-        color: Color.fromRGBO(201, 98, 98, 1),
-        points: [
-          LatLng(masterresponse[0]["getinlat"][1],
-              masterresponse[0]["getinlng"][1]),
-          LatLng(masterresponse[0]["getoutlat"][1],
-              masterresponse[0]["getoutlng"][1])
-        ],
-      );
-      backgroundMapState.setState(() {
-        markers.add(Marker(
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
-        alpha: 0.9,
-        markerId: MarkerId("origin"),
-        position: LatLng(masterresponse[0]["getinlat"][0],
-              masterresponse[0]["getinlng"][0])));
-            
-            markers.add(Marker(
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueMagenta),
-        alpha: 0.9,
-        markerId: MarkerId("connect"),
-        position: LatLng(masterresponse[0]["getinlat"][1],
-              masterresponse[0]["getinlng"][1])));
+}
 
-              markers.add(Marker(
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-        alpha: 0.9,
-        markerId: MarkerId("dest"),
-        position: LatLng(masterresponse[0]["getoutlat"][1],
-              masterresponse[0]["getoutlng"][1])));
+void showResult(response) async{
+  
+masterresponse = jsonDecode(response.body);
+    //developer.log(masterresponse.toString());
+    resultDetailsState.setState(() {
+      appstatus = "showresult";
+      resultarrived = 1;
+    });
+    myMapController.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+        target: LatLng(
+          (fromselectedobject.lat + toselectedobject.lat) / 2 -
+              (0.05 * pow(2, 12.4 - (zoomlevel - 0.3))),
+          (fromselectedobject.lng + toselectedobject.lng) / 2,
+        ),
+        bearing: 0,
+        zoom: zoomlevel - 0.3)));
+developer.log(masterresponse[0]["lats"][0].toString());
+showOnMap(0);
+}
 
-        polylines.add(polyline);
-        polylines.add(polyline2);
-        polylines.add(polyline3);
-        polylines.add(polyline4);
-      });
-    }
-    /*
-    await Future.delayed(Duration(milliseconds: 1000));
-    fromBoxState.setState((){
-isrotating=1;
-        });
-      fromBoxState.keeprotating(fromselectedobject, toselectedobject, zoomlevel-0.3);
-      */
-//CONNECT END
-*/
-  }
 
   void toggledepartreach() {
     //developer.log("TOGGLE");

@@ -16,6 +16,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'myResult.dart';
 import 'myResultDetails.dart';
 import 'myResultDetailsDouble.dart';
+import 'mySelectionPreview.dart';
 class ResultPreview extends StatefulWidget {
   const ResultPreview({Key? key, required this.itemid}) : super(key: key);
   final int itemid;
@@ -231,6 +232,7 @@ class _ResultPreviewState extends State<ResultPreview> {
                     } else {
                       resultDetailsState.setState(() {
                         openedroute = widget.itemid;
+                        selectionPreviewState.showOnMap(openedroute);
                       });
                     }
                   },
