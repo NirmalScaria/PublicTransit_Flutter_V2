@@ -154,6 +154,8 @@ class _SelectionPreviewState extends State<SelectionPreview> {
         await getBitmapDescriptorFromAssetBytes("lib/assets/link.png", 100);
     final myTargetIcon =
         await getBitmapDescriptorFromAssetBytes("lib/assets/dest.png", 100);
+        final myPointIcon =
+        await getBitmapDescriptorFromAssetBytes("lib/assets/point.png", 40);
     //developer.log(response.body);
     masterresponse = jsonDecode(response.body);
     //developer.log(masterresponse.toString());
@@ -169,10 +171,10 @@ class _SelectionPreviewState extends State<SelectionPreview> {
         ),
         bearing: 0,
         zoom: zoomlevel - 0.3)));
-
+developer.log(masterresponse[0]["lats"][0].toString());
 List<LatLng> polylinepoints=[];
-        for(i=0;i<masterresponse[0]["latlist"].length;i++){
-polylinepoints.add(LatLng(masterresponse[0]["latlist"][i],masterresponse[0]["lnglist"][i]));
+        for(int iii=0;iii<masterresponse[0]["lats"].length;iii++){
+polylinepoints.add(LatLng((masterresponse[0]["lats"][iii].toDouble()),masterresponse[0]["lngs"][iii].toDouble()));
 }
 
 Polyline polyline = Polyline(
@@ -187,6 +189,21 @@ Polyline polyline = Polyline(
 
 
     backgroundMapState.setState(() {
+
+      for(int iii=1;iii<masterresponse[0]["lats"].length-1;iii++){
+markers.add(Marker(
+        anchor: const Offset(0.5,0.5),
+          alpha: 1,
+          markerId: MarkerId("point$iii"),
+          icon: myPointIcon,
+          position: LatLng(masterresponse[0]["lats"][iii],
+              masterresponse[0]["lngs"][iii])));
+}
+
+
+      
+
+
       if(masterresponse[0]["numberofsteps"]==2){
       markers.add(Marker(
         anchor: const Offset(0.5,0.5),

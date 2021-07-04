@@ -150,12 +150,25 @@ class _ResultExpandedSingleState extends State<ResultExpandedSingle> {
                 color: Color.fromRGBO(194, 194, 194, 1),
                 thickness: 1,
               ),
-              Text(
-                "Travel ${masterresponse[widget.itemid]['timedifference']}",
-                style: GoogleFonts.roboto(
-                    fontSize: 14,
-                    color: Color.fromRGBO(27, 27, 27, 1),
-                    fontWeight: FontWeight.w600),
+              Row(
+                children: [
+                  Text('airline_seat_recline_normal_outlined',
+                      style: TextStyle(
+                        fontSize: 22,
+                        color: Color.fromRGBO(115, 115, 115, 1),
+                        fontFamily: 'MaterialIcons',
+                      )),
+                  SizedBox(width: 7),
+                  Expanded(
+                    child: Text(
+                      masterresponse[widget.itemid]['travelmessage'],
+                      style: GoogleFonts.roboto(
+                          fontSize: 15,
+                          color: Color.fromRGBO(115, 115, 115, 1),
+                          fontWeight: FontWeight.w400),
+                    ),
+                  ),
+                ],
               ),
               Divider(
                 color: Color.fromRGBO(194, 194, 194, 1),
